@@ -13,6 +13,63 @@ use Carbon\Carbon;
 class AuthController extends BaseController
 {
     protected $helpers = ['url', 'form', 'CIMail', 'CIFunctions'];
+
+    public function registerForm()
+    {
+        $data = [
+            'pageTitle' => 'Register',
+            'validation' => null
+        ];
+        return view('backend/pages/auth/register', $data);
+    }
+
+    public function registerHandler(){
+        //return view('backend/pages/auth/login');
+
+        $isValid = $this->validate([
+            'email' => [
+                'rules' =>'required|valid_email|is_unique[users.email]',
+                'errors' => [
+                    'required' => 'Email is required',
+                    'valid_email' => 'Please, double-check the email address.',
+                    'is_unique' => 'Email address is not registered.'
+                ]
+            ],
+            'password' => [
+                'rules' =>'required|min_length[5]|max_length[45]',
+                'errors' => [
+                    'required' => 'Password is required',
+                    'min_length' => 'Password must be at least 5 characters long.',
+                    'max_length' => 'Password can not be more than 45 characters long.'
+                ]
+                ],
+            'cpassword' => [
+                'rules' =>'required|min_length[5]|max_length[45]|matches[password]',
+                'errors' => [
+                    'required' => 'CPassword is required',
+                    'min_length' => 'Password must be at least 5 characters long.',
+                    'max_length' => 'Password can not be more than 45 characters long.',
+                    'matches' => 'Password must match'
+                ]
+            ]
+        ]);
+
+        if (!$isValid){
+            return view('backend\pages\auth\register',['validation' => $this->validator]);
+        }else{
+            $user = new User();
+            $user->insert([
+                'email' => $this->request->getVar('email'),
+                'password' => Hash::make($this->request->getVar('password')),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+
+            return redirect()->route('admin.login.form')->with('success', 'Account created successfully. Please login');
+        }
+    }
+
+
     public function loginForm()
     {
         $data = [
@@ -21,32 +78,6 @@ class AuthController extends BaseController
         ];
         return view('backend/pages/auth/login', $data);
     }
-    public function registerForm()
-{
-    $validation = $this->validate([
-        'username' => 'required|alpha_numeric|is_unique[users.username]',
-        'email' => 'required|valid_email|is_unique[users.email]',
-        'password' => 'required|min_length[6]',
-    ]);
-
-    if (!$validation) {
-        return view('backend/pages/auth/register', [
-            'pageTitle' => 'Register',
-            'validation' => $this->validator,
-        ]);
-    } else {
-        $user = new User();
-        $user->save([
-            'username' => $this->request->getVar('username'),
-            'email' => $this->request->getVar('email'),
-            'password' => Hash::make($this->request->getVar('password')),
-        ]);
-
-        // Optional: Send confirmation email
-
-        return redirect()->route('admin.login.form')->with('success', 'Account successfully created. Please login.');
-    }
-}
 
     public function loginHandler(){
         $fieldType = filter_var($this->request->getVar('login_id'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
