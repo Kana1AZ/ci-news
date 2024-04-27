@@ -41,28 +41,21 @@
                 <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
             </div>
         </div>
+        <div class="input-group custom">
+            <input type="password" class="form-control form-control-lg" placeholder="**********" name="password" value="<?= set_value('password') ?>">
+            <div class="input-group-append custom">
+                <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
+            </div>
+        </div>
         <?php if($validation->getError('password')): ?>
             <div class="d-block text-danger" style="margin-top:-25px; margin-bottom:15px;">
                 <?= $validation->getError('password') ?>
         </div>
         <?php endif;?>
-        <div class="row pb-30">
-            <div class="col-6">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="customCheck1">
-                    <label class="custom-control-label" for="customCheck1">Remember</label>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="forgot-password">
-                    <a href="<?= route_to('admin.forgot.form')?>">Forgot Password</a>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-sm-12">
                 <div class="input-group mb-0">
-                    <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
+                    <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign Up">
                 </div>
             </div>
         </div>
