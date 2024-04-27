@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class BlogController extends BaseController
+{
+    protected $helpers = ['url', 'form', 'CIMail', 'CIFunctions'];
+
+    public function index()
+    {
+        $data = [
+            'pageTitle' => get_settings()->blog_name
+            //'posts' => $this->postModel->getPosts()
+        ];
+        return view('frontend/example', $data);
+    }
+}
