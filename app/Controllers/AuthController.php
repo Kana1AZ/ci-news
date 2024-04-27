@@ -21,6 +21,32 @@ class AuthController extends BaseController
         ];
         return view('backend/pages/auth/login', $data);
     }
+    public function registerForm()
+{
+    $validation = $this->validate([
+        'username' => 'required|alpha_numeric|is_unique[users.username]',
+        'email' => 'required|valid_email|is_unique[users.email]',
+        'password' => 'required|min_length[6]',
+    ]);
+
+    if (!$validation) {
+        return view('backend/pages/auth/register', [
+            'pageTitle' => 'Register',
+            'validation' => $this->validator,
+        ]);
+    } else {
+        $user = new User();
+        $user->save([
+            'username' => $this->request->getVar('username'),
+            'email' => $this->request->getVar('email'),
+            'password' => Hash::make($this->request->getVar('password')),
+        ]);
+
+        // Optional: Send confirmation email
+
+        return redirect()->route('admin.login.form')->with('success', 'Account successfully created. Please login.');
+    }
+}
 
     public function loginHandler(){
         $fieldType = filter_var($this->request->getVar('login_id'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
