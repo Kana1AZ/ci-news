@@ -9,5 +9,5 @@ class Category extends Model
     protected $DBGroup          = 'default';
     protected $table            = 'categories';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['name', 'ordering'];
+    protected $allowedFields    = ['name', 'ordering', 'author_id'];
 }

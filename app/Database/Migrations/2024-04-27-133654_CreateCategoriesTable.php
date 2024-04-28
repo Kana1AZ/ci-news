@@ -14,7 +14,7 @@ class CreateCategoriesTable extends Migration
                 'unsigned' => true,
                 'auto_increment' => true
             ],
-            'user_id' => [
+            'author_id' => [
                 'type' => 'INT',
                 'unsigned' => true,
                 'null' => false
