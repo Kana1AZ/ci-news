@@ -151,9 +151,6 @@ $('#updatePostForm').submit(function(e) {
 
             if ($.isEmptyObject(response.error)) {
                 if (response.status == 1) {
-                    //$(form)[0].reset();
-                    //$('img#image-previewer').attr('src', '');
-                    //$('input[name="tags"]').tagsinput('removeAll');
                     toastr.success(response.msg);
                 } else {
                     toastr.error(response.msg);

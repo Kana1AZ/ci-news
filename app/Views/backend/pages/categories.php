@@ -73,6 +73,7 @@
     <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
     <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
 <script>
+    
 
 $(document).on('click', '#add-category-btn', function(e) {
     e.preventDefault();

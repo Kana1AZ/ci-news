@@ -285,7 +285,49 @@ class SSP {
         );
     }
 
+    public static function complex($request, $sql_details, $table, $primaryKey, $columns, $whereResult) {
+        $bindings = [];
+        $db = self::sql_connect($sql_details);
+     
+        // Build the SQL query string from the request
+        $limit = self::limit($request, $columns);
+        $order = self::order($request, $columns);
 
+       // log_message( $whereResult);
+    
+        // Directly use whereResult if it's not empty
+       $where = !empty($whereResult) ? " WHERE $whereResult" : "";
+
+    
+        // Complete SQL query
+        $sql = "SELECT SQL_CALC_FOUND_ROWS " . implode(", ", self::pluck($columns, 'db')) . "
+                FROM $table
+                $where
+                $order
+                $limit";
+    
+        // Execute and retrieve data
+        $data = self::sql_exec($db, $bindings, $sql);
+    
+        // Additional debug
+        log_message('info', 'Final SQL Query: ' . $sql);
+    
+        // Fetch total and filtered records as usual
+        $resTotalLength = self::sql_exec($db, "SELECT COUNT({$primaryKey}) FROM $table");
+        $recordsTotal = $resTotalLength[0][0];
+        $resFilteredLength = self::sql_exec($db, "SELECT FOUND_ROWS()");
+        $recordsFiltered = $resFilteredLength[0][0];
+    
+        // Prepare and return data
+        return array(
+            "draw"            => isset($request['draw']) ? intval($request['draw']) : 0,
+            "recordsTotal"    => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data"            => self::data_output($columns, $data)
+        );
+    }
+    
+    
     /**
      * Connect to the database
      *
