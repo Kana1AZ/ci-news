@@ -12,10 +12,12 @@ use SSP;
 use App\Models\Post;
 use Mberecall\CI_Slugify\SlugService;
 
+
 class AdminController extends BaseController
 {
     protected $helpers = ["url", "form", "CIMail", "CIFunctions"];
     protected $db;
+    
 
     public function __construct()
     {
@@ -25,11 +27,30 @@ class AdminController extends BaseController
 
     public function index()
     {
+        $postModel = new \App\Models\Post(); // Assuming you have a Post model
+        $userId = CIAuth::id();  // Get the logged-in user's ID.
+    
+        // Count total guarantees posted by the author
+        $totalGuarantees = $postModel->where('author_id', $userId)->countAllResults();
+    
+        // Count active guarantees (expiration date in the future)
+        $activeGuarantees = $postModel->where('author_id', $userId)
+                                       ->where('expiration_date >=', date('Y-m-d'))
+                                       ->countAllResults();
+    
+        // Count expired guarantees (expiration date in the past)
+        $expiredGuarantees = $postModel->where('author_id', $userId)
+                                        ->where('expiration_date <', date('Y-m-d'))
+                                        ->countAllResults();
         $data = [
             "pageTitle" => "Dashboard",
+            "totalGuarantees" => $totalGuarantees,
+            "activeGuarantees" => $activeGuarantees,
+            "expiredGuarantees" => $expiredGuarantees,
         ];
         return view("backend/pages/home", $data);
     }
+    
 
     public function logoutHandler()
     {
@@ -644,24 +665,24 @@ class AdminController extends BaseController
     public function addPost()
     {
         $category = new Category();
+        $userId = CIAuth::id();  // Get the logged-in user's ID.
+    
         $data = [
-            "pageTitle" => "Add new Post",
-            "categories" => $category->asObject()->findAll(),
+            "pageTitle" => "Add Post",
+            "categories" => $category->asObject()->where('author_id', $userId)->findAll(),  // Only fetch categories created by the logged-in user.
         ];
+    
         return view("backend/pages/new-post", $data);
     }
 
     public function createPost()
     {
         $request = \Config\Services::request();
-        log_message(
-            "debug",
-            "Received data: " . print_r($request->getPost(), true)
-        ); // Log all post data
-
+       // helper([]);
+    
         if ($request->isAJAX()) {
             $validation = \Config\Services::validation();
-
+    
             $this->validate([
                 "title" => [
                     "rules" => "required|is_unique[posts.title]",
@@ -674,8 +695,7 @@ class AdminController extends BaseController
                     "rules" => "required|min_length[20]",
                     "errors" => [
                         "required" => "Post content is required",
-                        "min_length" =>
-                            "Post content must have at least 20 characters",
+                        "min_length" => "Post content must have at least 20 characters",
                     ],
                 ],
                 "category" => [
@@ -685,18 +705,23 @@ class AdminController extends BaseController
                     ],
                 ],
                 "featured_image" => [
-                    "rules" =>
-                        "uploaded[featured_image]|is_image[featured_image]|max_size[featured_image, 2048]",
+                    "rules" => "uploaded[featured_image]|is_image[featured_image]|max_size[featured_image, 2048]",
                     "errors" => [
                         "uploaded" => "Featured image is required",
-                        "is_image" =>
-                            "Featured image must be a jpg, jpeg or png",
-                        "max_size" =>
-                            "Featured image size must be less than 2MB",
+                        "is_image" => "Featured image must be a jpg, jpeg, or png",
+                        "max_size" => "Featured image size must be less than 2MB",
+                    ],
+                ],
+                "expiration_date" => [
+                    "rules" => "required|valid_date[Y-m-d]|check_date_is_future[expiration_date]",
+                    "errors" => [
+                        "required" => "Expiration date is required",
+                        "valid_date" => "Provide a valid expiration date",
+                        "check_date_is_future" => "Expiration date cannot be in the past",
                     ],
                 ],
             ]);
-
+    
             if ($validation->run() === false) {
                 $errors = $validation->getErrors();
                 return $this->response->setJSON([
@@ -708,52 +733,38 @@ class AdminController extends BaseController
                 $user_id = CIAuth::id();
                 $path = "images/posts/";
                 $file = $request->getFile("featured_image");
-                //$filename = $file->getClientName();
-                $filename = 'pimg_'.time().$file->getClientName();
-
-
-                //Make post featured image folder if not exist
-
+                $filename = 'pimg_' . time() . $file->getClientName();
+    
+                // Make post featured image folder if not exist
                 if (!is_dir($path)) {
                     mkdir($path, 0777, true);
                 }
-
-                //Move file to folder
-
+    
+                // Move file to folder
                 if ($file->move($path, $filename)) {
-                    //create thumbnail
                     \Config\Services::image()
                         ->withFile($path . $filename)
                         ->fit(150, 150, "center")
                         ->save($path . "thumb_" . $filename);
-
-                    //create resized image
+    
                     \Config\Services::image()
                         ->withFile($path . $filename)
                         ->resize(450, 300, true, "width")
                         ->save($path . "resized_" . $filename);
-
-                    //save post data to DB
+    
+                    // Save post data to DB
                     $post = new Post();
                     $data = [
                         "author_id" => $user_id,
                         "category_id" => $request->getVar("category"),
                         "title" => $request->getVar("title"),
-                        "slug" => SlugService::model(Post::class)->make(
-                            $request->getVar("title")
-                        ),
                         "content" => $request->getVar("content"),
                         "featured_image" => $filename,
-                        "tags" => $request->getVar("tags"),
-                        "meta_keywords" => $request->getVar("meta_keywords"),
-                        "meta_description" => $request->getVar(
-                            "meta_description"
-                        ),
                         "visibility" => $request->getVar("visibility"),
+                        "expiration_date" => $request->getVar("expiration_date"), // Include expiration date
                     ];
                     $save = $post->insert($data);
-                    $last_id = $post->getInsertID();
-
+    
                     if ($save) {
                         return $this->response->setJSON([
                             "status" => 1,
@@ -777,6 +788,7 @@ class AdminController extends BaseController
             }
         }
     }
+    
 
     public function allPosts()
     {
@@ -833,23 +845,20 @@ class AdminController extends BaseController
                 "dt" => 4,
                 "formatter" => function ($d, $row) {
                     $post = new Post();
-                    $visibility = $post->asObject()->find($row["id"])
-                        ->visibility;
-                    return $visibility == 1 ? "Published" : "Draft";
+                    $postDetails = $post->asObject()->find($row["id"]);
+                    $expirationDate = $postDetails->expiration_date; // Assuming 'expiration_date' is the field name in your database
+                    $status = strtotime($expirationDate) > time() ? 'Active' : 'Expired'; // Check if the post is expired or still active
+                    return $expirationDate . ' (' . $status . ')';
                 },
             ],
             [
                 "db" => "id",
                 "dt" => 5,
                 "formatter" => function ($d, $row) {
+                    $editUrl = route_to("edit-post", $row["id"]); // Assuming you have a named route for editing
                     return "<div class='btn-group'>
-                        <a href='' class='btn btn-sm btn-link p-0 mx-1'>View</a>
-                        <a href='" .
-                        route_to("edit-post", $row["id"]) .
-                        "' class='btn btn-sm btn-link p-0 mx-1' >Edit</a>
-                        <button class='btn btn-sm btn-link p-0 mx-1 deletePostBtn' data-id='" .
-                        $row["id"] .
-                        "'>Delete</button>
+                        <a href='" . $editUrl . "' data-color='#265ed7' style='color: rgb(38, 94, 215); margin-right: 60%;'><i class='icon-copy dw dw-edit2'></i></a>
+                        <a href='javascript:void(0);' class='deletePostBtn' data-id='" . $row["id"] . "' data-color='#e95959' style='color: rgb(233, 89, 89);'><i class='icon-copy dw dw-delete-3'></i></a>
                     </div>";
                 },
             ],
@@ -865,10 +874,15 @@ class AdminController extends BaseController
     {
         $post = new Post();
         $category = new Category();
+        
+        // Assuming CIAuth is your authentication helper and it can provide the current user's ID
+        $userId = CIAuth::id();  // Get the logged-in user's ID
+    
         $data = [
             "pageTitle" => "Edit Post",
             "post" => $post->asObject()->find($id),
-            "categories" => $category->asObject()->findAll(),
+            // Fetch only the categories that were created by the logged-in user
+            "categories" => $category->asObject()->where('author_id', $userId)->findAll(),
         ];
         return view("backend/pages/edit-post", $data);
     }
@@ -917,6 +931,14 @@ class AdminController extends BaseController
                                 "Featured image size must be less than 2MB",
                         ],
                     ],
+                    "expiration_date" => [
+                        "rules" => "required|valid_date[Y-m-d]|check_date_is_future[expiration_date]",
+                        "errors" => [
+                            "required" => "Expiration date is required",
+                            "valid_date" => "Provide a valid expiration date",
+                            "check_date_is_future" => "Expiration date cannot be in the past",
+                        ],
+                    ],
                 ]);
             } else {
                 $this->validate([
@@ -936,6 +958,14 @@ class AdminController extends BaseController
                             "required" => "Post content is required",
                             "min_length" =>
                                 "Post content must have at least 20 characters",
+                        ],
+                    ],
+                    "expiration_date" => [
+                        "rules" => "required|valid_date[Y-m-d]|check_date_is_future[expiration_date]",
+                        "errors" => [
+                            "required" => "Expiration date is required",
+                            "valid_date" => "Provide a valid expiration date",
+                            "check_date_is_future" => "Expiration date cannot be in the past",
                         ],
                     ],
                 ]);
@@ -992,19 +1022,10 @@ class AdminController extends BaseController
                             "author_id" => $user_id,
                             "category_id" => $request->getVar("category"),
                             "title" => $request->getVar("title"),
-                            "slug" => SlugService::model(Post::class)->make(
-                                $request->getVar("title")
-                            ),
                             "content" => $request->getVar("content"),
                             "featured_image" => $filename,
-                            "tags" => $request->getVar("tags"),
-                            "meta_keywords" => $request->getVar(
-                                "meta_keywords"
-                            ),
-                            "meta_description" => $request->getVar(
-                                "meta_description"
-                            ),
                             "visibility" => $request->getVar("visibility"),
+                            "expiration_date" => $request->getVar("expiration_date"), // Include expiration date
                         ];
 
                         $update = $post->update($post_id, $data);
@@ -1035,16 +1056,9 @@ class AdminController extends BaseController
                         "author_id" => $user_id,
                         "category_id" => $request->getVar("category"),
                         "title" => $request->getVar("title"),
-                        "slug" => SlugService::model(Post::class)->make(
-                            $request->getVar("title")
-                        ),
                         "content" => $request->getVar("content"),
-                        "tags" => $request->getVar("tags"),
-                        "meta_keywords" => $request->getVar("meta_keywords"),
-                        "meta_description" => $request->getVar(
-                            "meta_description"
-                        ),
                         "visibility" => $request->getVar("visibility"),
+                        "expiration_date" => $request->getVar("expiration_date"), // Include expiration date
                     ];
 
                     $update = $post->update($post_id, $data);
@@ -1103,4 +1117,6 @@ class AdminController extends BaseController
             }
         }
     }
+
+
 }

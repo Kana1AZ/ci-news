@@ -9,6 +9,7 @@ use CodeIgniter\Validation\StrictRules\FormatRules;
 use CodeIgniter\Validation\StrictRules\Rules;
 use App\Validation\IsPasswordStrong;
 use App\Validation\IsCurrentPasswordCorrect;
+use App\Validation\DateRules;
 
 class Validation extends BaseConfig
 {
@@ -29,6 +30,7 @@ class Validation extends BaseConfig
         CreditCardRules::class,
         IsPasswordStrong::class,
         IsCurrentPasswordCorrect::class,
+        DateRules::class,
     ];
 
     /**

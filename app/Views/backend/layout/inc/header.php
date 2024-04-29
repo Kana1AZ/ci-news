@@ -21,7 +21,6 @@
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                     <a class="dropdown-item" href="<?= route_to("admin.profile")?>"><i class="dw dw-user1"></i>
                         Profile</a>
-                    <a class="dropdown-item" href="<?= route_to('settings')?>"><i class="dw dw-settings2"></i> Settings</a>
                     <a class="dropdown-item" href="<?= route_to('admin.logout')?>"><i class="dw dw-logout"></i> Log
                         Out</a>
                 </div>

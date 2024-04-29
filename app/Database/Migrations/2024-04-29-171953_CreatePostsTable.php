@@ -54,11 +54,15 @@ class CreatePostsTable extends Migration
                 'constraint' => 11,
                 'default' => 1,
             ],
+            'expiration_date' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
             'created_at timestamp default current_timestamp',
             'updated_at timestamp default current_timestamp on update current_timestamp'
         ]);
 
-        $this->forge->addKey('id');
+        $this->forge->addKey('id', true);
         $this->forge->createTable('posts');
     }
 

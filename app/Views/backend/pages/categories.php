@@ -3,7 +3,7 @@
 
 <div class="page-header">
     <div class="row">
-        <div class="col-md-12 col-sm-12">
+        <div class="col-md-6 col-sm-12">
             <div class="title">
                 <h4>Categories</h4>
             </div>
@@ -18,6 +18,13 @@
                 </ol>
             </nav>
         </div>
+        <div class="col-md-6 col-sm-12 text-right">
+            <div class="dropdown">
+                <a class="btn btn-primary" id="add-category-btn" style="color: white">
+                    Add new category
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -29,11 +36,11 @@
                     <div class="pull-left">
                         Categories
                     </div>
-                    <div class="pull-right">
+                    <!-- <div class="pull-right">
                         <a href="#" class="btn btn-default btn-sm p-0" role="button" id="add-category-btn">
                             <i class="fa fa-plus-circle"></i> Add category
                         </a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="card-body">
@@ -132,22 +139,25 @@ $('#add_category_form').on('submit', function(e) {
 });
     //retrieve categories
     var categories_DT = $('#categories-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax:"<?= route_to('get-categories')?>",
-        dom:"Brtip",
-        info:true,
-        fnCreatedRow: function(row, data, index) {
-            $('td', row).eq(0).html(index + 1);
-            console.log(data);
-            $('td', row).parent().attr('data-index', data[0]).attr('data-ordering', data[4]);
-        },
-        columnDefs:[
-            {orderable:false, targets:[0,1,2,3]},
-            {visible:false, targets:4}
-        ],
-        order:[[4, 'asc']]
-    });
+    processing: true,
+    serverSide: true,
+    ajax: "<?= route_to('get-categories')?>",
+    dom: "Brtip",
+    info: true,
+    language: {
+        info: "",
+        infoFiltered: ""
+    },
+    fnCreatedRow: function(row, data, index) {
+        $('td', row).eq(0).html(index + 1);
+    },
+    columnDefs: [
+        { orderable: false, targets: [0,1,2,3] },
+        { visible: false, targets: 4 }
+    ],
+    order: [[4, 'asc']]
+});
+
 
     //edit category
     $(document).on('click', '.editCategoryBtn', function(e) {
@@ -239,32 +249,6 @@ $('#add_category_form').on('submit', function(e) {
                 }, 'json');
            } 
         });
-    });
-
-    //reorder categories
-    
-    $('table#categories-table').find('tbody').sortable({
-       update: function(event, ui){
-           $(this).children().each(function(index){
-               if($(this).attr('data-ordering') != (index + 1)){
-                   $(this).attr('data-ordering', (index + 1)).addClass('updated');
-               }
-           });
-            var positions = [];
-
-            $('.updated').each(function(){
-                positions.push([$(this).attr('data-index'), $(this).attr('data-ordering')]);
-                $(this).removeClass('updated');
-            });
-            
-            var url = "<?= route_to('reorder-categories')?>";
-            $.get(url, {positions:positions}, function(response){
-                if(response.status == 1){
-                    categories_DT.ajax.reload(null, false);
-                    toastr.success(response.msg);
-                }
-            }, 'json');
-       }
     });
 
 </script>

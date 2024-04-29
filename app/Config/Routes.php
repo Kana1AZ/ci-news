@@ -37,6 +37,7 @@ $routes->group('admin', static function($routes){
             $routes->get('edit-post/(:any)', 'AdminController::editPost/$1', ['as'=>'edit-post']);
             $routes->post('update-post', 'AdminController::updatePost', ['as'=>'update-post']); 
             $routes->get('delete-post', 'AdminController::deletePost', ['as'=>'delete-post']);
+   
         });
     });
     $routes->group('', ['filter' => 'cifilter:guest'], static function($routes){

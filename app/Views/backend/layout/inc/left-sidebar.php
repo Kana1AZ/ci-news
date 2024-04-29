@@ -30,10 +30,10 @@
 						<li class="dropdown">
 							<a href="javascript:;" class="dropdown-toggle" <?= current_route_name() == 'all-posts' || current_route_name() == 'new-post' ? 'active' : '' ?>>
 								<span class="micon dw dw-newspaper"></span
-								><span class="mtext">Posts</span>
+								><span class="mtext">Guarantees</span>
 							</a>
 							<ul class="submenu">
-								<li><a href="<?= route_to('all-posts')?>" class="<?= current_route_name() == 'all-posts' ? 'active' : '' ?>">All posts</a></li>
+								<li><a href="<?= route_to('all-posts')?>" class="<?= current_route_name() == 'all-posts' ? 'active' : '' ?>">All</a></li>
 								<li><a href="<?= route_to('new-post')?>" class="<?= current_route_name() == 'new-post' ? 'active' : '' ?>">Add new</a></li>
 							</ul>
 						</li>
@@ -53,18 +53,6 @@
 								<span class="micon dw dw-user"></span>
 								<span class="mtext"
 									>Profile
-									</span>
-							</a>
-						</li>
-						<li>
-							<a
-								href="<?= route_to('settings')?>"
-
-								class="dropdown-toggle no-arrow <?= current_route_name() == 'settings' ? 'active' : '' ?>"
-							>
-								<span class="micon dw dw-settings"></span>
-								<span class="mtext"
-									>Setttings
 									</span>
 							</a>
 						</li>

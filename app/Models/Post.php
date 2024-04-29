@@ -13,13 +13,10 @@ class Post extends Model
         'author_id',
         'category_id',
         'title',
-        'slug',
         'content',
         'featured_image',
-        'tags',
-        'meta_keywords',
-        'meta_description',
         'visibility',
+        'expiration_date',
     ];
 
 }

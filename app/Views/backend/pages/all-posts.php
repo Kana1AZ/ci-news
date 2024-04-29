@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-6 col-sm-12">
             <div class="title">
-                <h4>All posts</h4>
+                <h4>All guarantees</h4>
             </div>
             <nav aria-label="breadcrumb" role="navigation">
                 <ol class="breadcrumb">
@@ -13,7 +13,7 @@
                         <a href="<?= route_to('admin.home')?>">Home</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        All posts
+                        All guarantees
                     </li>
                 </ol>
             </nav>
@@ -21,7 +21,7 @@
         <div class="col-md-6 col-sm-12 text-right">
             <div class="dropdown">
                 <a class="btn btn-primary" href="<?= route_to('new-post')?>">
-                    Add new post
+                    Add new
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
         <div class="card card-box">
             <div class="card-header">
                 <div class="clearfix">
-                    <div class="pull-left">All Posts</div>
+                    <div class="pull-left">All Guarantees</div>
                     <div class="pull-right"></div>
                 </div>
             </div>
@@ -45,8 +45,8 @@
                             <th scope="col">Image</th>
                             <th scope="col">Title</th>
                             <th scope="col">Category</th>
-                            <th scope="col">Visibility</th>
-                            <th scope="col">Action</th>
+                            <th scope="col">Exp. Date</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody> </tbody>
@@ -68,22 +68,26 @@
 <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
 <script>
     //retrieve posts
-    var posts_DT =$('table#posts-table').DataTable({
-        scrollCollapse: true,
-        responsive: true,
-        autoWidth: false,
-        processing: true,
-        serverSide: true,
-        ajax: "<?= route_to('get-posts')?>",
-        "dom":"IBfrtip",
-        info: true,
-        fnCreateRow: function( td, data, index ) {
-            $(td, row).eq(0).html(index + 1);
-        },
-        columDefs:[
-            {orderabalbe: false, targets: [0,1,2,3,4,5]},
-        ],
-    });
+    var posts_DT = $('table#posts-table').DataTable({
+    scrollCollapse: true,
+    responsive: true,
+    autoWidth: false,
+    processing: true,
+    serverSide: true,
+    ajax: "<?= route_to('get-posts')?>",
+    dom: "IBfrtip",
+    info: true,
+    language: {
+        info: "",
+        infoFiltered: ""
+    },
+    fnCreateRow: function( td, data, index ) {
+        $(td, row).eq(0).html(index + 1);
+    },
+    columDefs: [
+        { orderable: true, targets: [0,1,2,3,4,5] },
+    ],
+});
 
     //delete post
     $(document).on('click', '.deletePostBtn', function(e){
