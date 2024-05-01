@@ -11,13 +11,13 @@
                 </button>
             </div>
             <div class="modal-body">
-               <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>" class="ci_csrf_data">
+                <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>" class="ci_csrf_data">
                 <div class="form-group">
                     <label for=""><b>Category<b></label>
                     <input type="text" class="form-control" name="category_name" placeholder="Enter category name">
                     <span class="text-danger error-text category_name_error"></span>
+                </div>
             </div>
-        </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Close

@@ -13,7 +13,6 @@ class BlogController extends BaseController
     {
         $data = [
             'pageTitle' => get_settings()->blog_name
-            //'posts' => $this->postModel->getPosts()
         ];
         return view('frontend/example', $data);
     }

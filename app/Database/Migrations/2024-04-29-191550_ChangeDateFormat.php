@@ -11,7 +11,7 @@ class ModifyExpirationDateToOnlyDate extends Migration
         $this->forge->modifyColumn('posts', [
             'expiration_date' => [
                 'type' => 'DATE',
-                'null' => true,  // Assuming it's okay to have null values
+                'null' => true,
             ],
         ]);
     }

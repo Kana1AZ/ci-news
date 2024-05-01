@@ -38,7 +38,8 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="data-table table stripe hover nowrap dataTable no-footer dtr-inline collapsed" id="posts-table">
+                <table class="data-table table stripe hover nowrap dataTable no-footer dtr-inline collapsed"
+                    id="posts-table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -56,6 +57,7 @@
     </div>
 </div>
 
+
 <?= $this->endSection()?>
 <?= $this->section('stylesheets') ?>
 <link rel="stylesheet" href="/backend/src/plugins/datatables/css/dataTables.bootstrap4.min.css">
@@ -67,57 +69,72 @@
 <script src="/backend/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
 <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
 <script>
-    //retrieve posts
-    var posts_DT = $('table#posts-table').DataTable({
+//retrieve posts
+var posts_DT = $('table#posts-table').DataTable({
     scrollCollapse: true,
     responsive: true,
     autoWidth: false,
     processing: true,
     serverSide: true,
-    ajax: "<?= route_to('get-posts')?>",
+    ajax: "<?= route_to('get-posts') ?>",
     dom: "IBfrtip",
     info: true,
     language: {
         info: "",
         infoFiltered: ""
     },
-    fnCreateRow: function( td, data, index ) {
-        $(td, row).eq(0).html(index + 1);
+    fnCreateRow: function(row, data, index) {
+        $('td:eq(0)', row).html(index + 1); // Correctly targeting the first column for row index
     },
-    columDefs: [
-        { orderable: true, targets: [0,1,2,3,4,5] },
+    columnDefs: [{
+            sortable: false,
+            targets: [0, 1, 5] // Assuming all columns except actions should be orderable
+        },
+        {
+            searchable: true,
+            targets: [2] // Enabling search on the 'Title' column
+        },
+        {
+            searchable: false,
+            targets: [0, 1, 3, 4, 5] // Disabling search on all other columns
+        }
     ],
+    order: [
+        [4, 'desc']
+    ] // Default order on the 'Title' column if needed
 });
 
-    //delete post
-    $(document).on('click', '.deletePostBtn', function(e){
-        e.preventDefault();
-        var post_id = $(this).data('id');
-        //alert(post_id);
-        var url = "<?= route_to('delete-post')?>";
-        swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to recover this post!',
-            showCloseButton: true,
-            showCancelButton: true,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonColor: '#d33',
-            confirmButtonColor: '#556ee6',
-            width: '400px',
-            allowOutsideClick: false
-        }).then(function(result){
-            if(result.value){
-                $.getJSON(url,{post_id:post_id}, function(response){
-                    if(response.status == 1){
-                        posts_DT.ajax.reload(null,false);
-                        toastr.success(response.msg);
-                    }else{
-                        toastr.error(response.msg);
-                    }
-                });
-            }
-        });
+//delete post
+$(document).on('click', '.deletePostBtn', function(e) {
+    e.preventDefault();
+    var post_id = $(this).data('id');
+    //alert(post_id);
+    var url = "<?= route_to('delete-post')?>";
+    swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this post!',
+        showCloseButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonColor: '#d33',
+        confirmButtonColor: '#556ee6',
+        width: '400px',
+        allowOutsideClick: false
+    }).then(function(result) {
+        if (result.value) {
+            $.getJSON(url, {
+                post_id: post_id
+            }, function(response) {
+                if (response.status == 1) {
+                    posts_DT.ajax.reload(null, false);
+                    toastr.success(response.msg);
+                } else {
+                    toastr.error(response.msg);
+                }
+            });
+        }
     });
+});
 </script>
 <?= $this->endSection()?>

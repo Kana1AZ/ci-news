@@ -61,6 +61,7 @@ class AuthController extends BaseController
             $user->insert([
                 'email' => $this->request->getVar('email'),
                 'password' => Hash::make($this->request->getVar('password')),
+                'role' => 'user', // Default role as 'user
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]);

@@ -14,7 +14,8 @@
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="<?= get_user()->picture == null ? '/images/users/default-avatar.png' : '/images/users/'.get_user()->picture?>" alt="" class="avatar-photo ci-avatar-photo" alt="" class="ci-avatar-photo" />
+                        <img src="<?= get_user()->picture == null ? '/images/users/default-avatar.png' : '/images/users/'.get_user()->picture?>"
+                            alt="" class="avatar-photo ci-avatar-photo" alt="" class="ci-avatar-photo" />
                     </span>
                     <span class="user-name ci-user-name"><?= get_user()->name?></span>
                 </a>

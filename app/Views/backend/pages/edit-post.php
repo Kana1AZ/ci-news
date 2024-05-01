@@ -28,7 +28,7 @@
     id="updatePostForm">
     <input type="hidden" name="<?= csrf_token()?>" value="<?= csrf_hash()?>" class="ci-csrf-data">
     <input type="hidden" name="post_id" value="<?= $post->id?>">
-    
+
     <div class="row">
         <div class="col-md-9">
             <div class="card card-box mb-2">
@@ -67,7 +67,7 @@
                         </select>
                         <span class="text-danger error-text category_error"></span>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="expiration_date"><b>Expiration Date</b></label>
                         <input type="date" name="expiration_date" id="expiration_date" class="form-control"
@@ -76,7 +76,7 @@
                         <span class="text-danger error-text expiration_date_error"></span>
                     </div>
                     <div class="form-group">
-                        <label for=""><b>Content</b></label>
+                        <label for=""><b>Notes</b></label>
                         <textarea name="content" id="" cols="30" rows="10" class="form-control"
                             placeholder="Type...."><?= $post->content?></textarea>
                         <span class="text-danger error-text content_error"></span>

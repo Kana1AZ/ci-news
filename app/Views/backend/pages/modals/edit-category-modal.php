@@ -19,14 +19,14 @@
                     <span class="text-danger error-text category_name_error"></span>
                 </div>
             </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Close
-                    </button>
-                    <button type="submit" class="btn btn-primary action">
-                        Save changes
-                    </button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Close
+                </button>
+                <button type="submit" class="btn btn-primary action">
+                    Save changes
+                </button>
+            </div>
         </form>
     </div>
 </div>

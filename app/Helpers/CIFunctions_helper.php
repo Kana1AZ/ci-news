@@ -24,11 +24,9 @@ if (!function_exists('get_settings')){
 
         if(!$settings_data){
             $data = array(
-                'blog_name' => 'CI-News',
+                'blog_name' => 'Guarantees',
                 'blog_email' => 'info@cinews.test',
                 'blog_phone' => null,
-                'blog_meta_keywords' => null,
-                'blog_meta_description' => null,
                 'blog_logo' => null,
                 'blog_favicon' => null,
             );

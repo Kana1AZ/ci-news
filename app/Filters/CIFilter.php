@@ -37,6 +37,11 @@ class CIFilter implements FilterInterface
                 return redirect()->route('admin.login.form')->with('fail','You must be logged in first!');
             }
         }
+
+        // Additional check for admin role if required
+        if (in_array('admin', $arguments) && (!CIAuth::check() || CIAuth::user()->role !== 'admin')) {
+            return redirect()->route('admin.login.form')->with('fail', 'You must be an admin to access this page.');
+        }
     }
 
     /**

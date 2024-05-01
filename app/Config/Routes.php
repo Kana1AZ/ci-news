@@ -11,33 +11,28 @@ $routes->group('admin', static function($routes){
   
     $routes->group('', ['filter' => 'cifilter:auth'], static function($routes){
        // $routes->view('example-page', 'example-page');
-        $routes->get('home', 'AdminController::index', ['as'=>'admin.home']);
-        $routes->get('logout', 'AdminController::logoutHandler', ['as'=>'admin.logout']);
-        $routes->get('profile', 'AdminController::profile', ['as'=>'admin.profile']);
-        $routes->post('update-personal-details', 'AdminController::updatePersonalDetails', ['as'=>'update-personal-details']);
-        $routes->post('update-profile-picture', 'AdminController::updateProfilePicture', ['as'=>'update-profile-picture']);
-        $routes->post('change-password', 'AdminController::changePassword', ['as'=>'change-password']);
-        $routes->get('settings', 'AdminController::settings', ['as'=>'settings']);
-        $routes->post('update-general-settings', 'AdminController::updateGeneralSettings', ['as'=>'update-general-settings']);
-        $routes->post('update-blog-logo', 'AdminController::updateBlogLogo', ['as'=>'update-blog-logo']);
-        $routes->post('update-blog-favicon', 'AdminController::updateBlogFavicon', ['as'=>'update-blog-favicon']);
-        $routes->get('categories', 'AdminController::categories', ['as'=>'categories']);
-        $routes->post('add-category', 'AdminCOntroller::addCategory', ['as'=>'add-category']);
-        $routes->get('get-categories', 'AdminController::getCategories', ['as'=>'get-categories']);
-        $routes->get('get-category', 'AdminController::getCategory', ['as'=>'get-category']);
-        $routes->post('update-category', 'AdminController::updateCategory', ['as'=>'update-category']);
-        $routes->get('delete-category', 'AdminController::deleteCategory', ['as'=>'delete-category']);
-        $routes->get('reorder-categories', 'AdminController::reorderCategories', ['as'=>'reorder-categories']);
+        $routes->get('home', 'UserController::index', ['as'=>'admin.home']);
+        $routes->get('logout', 'UserController::logoutHandler', ['as'=>'admin.logout']);
+        $routes->get('profile', 'UserController::profile', ['as'=>'admin.profile']);
+        $routes->post('update-personal-details', 'UserController::updatePersonalDetails', ['as'=>'update-personal-details']);
+        $routes->post('update-profile-picture', 'UserController::updateProfilePicture', ['as'=>'update-profile-picture']);
+        $routes->post('change-password', 'UserController::changePassword', ['as'=>'change-password']);        
+        $routes->get('categories', 'UserController::categories', ['as'=>'categories']);
+        $routes->post('add-category', 'UserController::addCategory', ['as'=>'add-category']);
+        $routes->get('get-categories', 'UserController::getCategories', ['as'=>'get-categories']);
+        $routes->get('get-category', 'UserController::getCategory', ['as'=>'get-category']);
+        $routes->post('update-category', 'UserController::updateCategory', ['as'=>'update-category']);
+        $routes->get('delete-category', 'UserController::deleteCategory', ['as'=>'delete-category']);
+        $routes->get('reorder-categories', 'UController::reorderCategories', ['as'=>'reorder-categories']);
         
         $routes->group('posts', static function($routes){
-            $routes->get('new-post', 'AdminController::addPost', ['as'=>'new-post']);
-            $routes->post('create-post', 'AdminController::createPost', ['as'=>'create-post']);
-            $routes->get('/', 'AdminController::allPosts', ['as'=>'all-posts']);
-            $routes->get('get-posts', 'AdminController::getPosts', ['as'=>'get-posts']);
-            $routes->get('edit-post/(:any)', 'AdminController::editPost/$1', ['as'=>'edit-post']);
-            $routes->post('update-post', 'AdminController::updatePost', ['as'=>'update-post']); 
-            $routes->get('delete-post', 'AdminController::deletePost', ['as'=>'delete-post']);
-   
+        $routes->get('new-post', 'UserController::addPost', ['as'=>'new-post']);
+        $routes->post('create-post', 'UserController::createPost', ['as'=>'create-post']);
+        $routes->get('/', 'UserController::allPosts', ['as'=>'all-posts']);
+        $routes->get('get-posts', 'UserController::getPosts', ['as'=>'get-posts']);
+        $routes->get('edit-post/(:any)', 'UserController::editPost/$1', ['as'=>'edit-post']);
+        $routes->post('update-post', 'UsernController::updatePost', ['as'=>'update-post']); 
+        $routes->get('delete-post', 'UsernController::deletePost', ['as'=>'delete-post']);
         });
     });
     $routes->group('', ['filter' => 'cifilter:guest'], static function($routes){
@@ -51,7 +46,16 @@ $routes->group('admin', static function($routes){
        $routes->get('password/reset/(:any)', 'AuthController::resetPassword/$1', ['as'=>'admin.reset-password']);
        $routes->post('reset-password-handler/(:any)', 'AuthController::resetPasswordHandler/$1', ['as'=>'reset-password-handler'] );
     });
+    
+    $routes->group('', ['filter' => 'cifilter:admin'], static function($routes) {
+        $routes->get('settings', 'AdminController::settings', ['as'=>'settings']);
+        $routes->post('update-blog-favicon', 'AdminController::updateBlogFavicon', ['as'=>'update-blog-favicon']);
+        $routes->get('get-users', 'AdminController::getUsers', ['as'=>'get-users']);
+        $routes->post('delete-user', 'AdminController::deleteUser', ['as' => 'delete-user']);
+        $routes->get('get-user-details', 'AdminController::getUserDetails', ['as' => 'get-user-details']);
+        $routes->post('update-user-details', 'AdminController::updateUserDetails', ['as' => 'update-user-details']);
+        $routes->post('update-general-settings', 'AdmController::updateGeneralSettings', ['as'=>'update-general-settings']);
+        $routes->post('update-blog-logo', 'AdminController::updateBlogLogo', ['as'=>'update-blog-logo']);
+    });
+        
 });
-
-
-

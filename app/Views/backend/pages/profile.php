@@ -25,7 +25,9 @@
     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
         <div class="pd-20 card-box height-100-p">
             <div class="profile-photo">
-                <a href="javascript:;" onclick="event.preventDefault();document.getElementById('user_profile_file').click();" class="edit-avatar"  ><i class="fa fa-pencil"></i></a>
+                <a href="javascript:;"
+                    onclick="event.preventDefault();document.getElementById('user_profile_file').click();"
+                    class="edit-avatar"><i class="fa fa-pencil"></i></a>
                 <input type="file" name="user_profile_file" id="user_profile_file" class="d-none" style="opacity: 0;">
                 <img src="<?= get_user()->picture == null ? '/images/users/default-avatar.png' : '/images/users/'.get_user()->picture?>"
                     alt="" class="avatar-photo ci-avatar-photo">
@@ -90,34 +92,39 @@
                         <!-- Tasks Tab start -->
                         <div class="tab-pane fade" id="change_password" role="tabpanel">
                             <div class="pd-20 profile-task-wrap">
-                            <form action="<?= route_to('change-password')?>" method="POST" id="change_password_form">
-                                        <input type="hidden" name="<?= csrf_token()?>" value="<?= csrf_hash() ?>" class="ci_csrf_data">
-                                       <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="">Current password</label>
-                                                    <input type="password" class="form-control" placeholder="Enter your current password" name="current_password">
-                                                    <span class="text-danger error-text current_password_error"></span>
-                                                </div>
+                                <form action="<?= route_to('change-password')?>" method="POST"
+                                    id="change_password_form">
+                                    <input type="hidden" name="<?= csrf_token()?>" value="<?= csrf_hash() ?>"
+                                        class="ci_csrf_data">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Current password</label>
+                                                <input type="password" class="form-control"
+                                                    placeholder="Enter your current password" name="current_password">
+                                                <span class="text-danger error-text current_password_error"></span>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="">New password</label>
-                                                    <input type="password" class="form-control" placeholder="Enter your new password" name="new_password">
-                                                    <span class="text-danger error-text new_password_error"></span>
-                                                </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="">New password</label>
+                                                <input type="password" class="form-control"
+                                                    placeholder="Enter your new password" name="new_password">
+                                                <span class="text-danger error-text new_password_error"></span>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="">Confirm new password</label>
-                                                    <input type="password" class="form-control" placeholder="Confirm your new password" name="confirm_new_password">
-                                                    <span class="text-danger error-text confirm_new_password_error"></span>
-                                                </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Confirm new password</label>
+                                                <input type="password" class="form-control"
+                                                    placeholder="Confirm your new password" name="confirm_new_password">
+                                                <span class="text-danger error-text confirm_new_password_error"></span>
                                             </div>
-                                       </div>
-                                       <div class="form-group">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Change password</button>
-                                       </div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -133,7 +140,7 @@
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
 <script>
-    $('#personal_details_form').on('submit', function(e){
+$('#personal_details_form').on('submit', function(e) {
     e.preventDefault();
     var form = this;
     var formdata = new FormData(form);
@@ -144,86 +151,85 @@
         processData: false,
         dataType: 'json',
         contentType: false,
-        beforeSend: function(){
+        beforeSend: function() {
             toastr.remove();
             $(form).find('span.error-text').text('');
         },
-        success: function(response){
-            if($.isEmptyObject(response.error)){
-                if(response.status == 1){
-                    $('.ci-user-name').each(function(){
+        success: function(response) {
+            if ($.isEmptyObject(response.error)) {
+                if (response.status == 1) {
+                    $('.ci-user-name').each(function() {
                         $(this).html(response.user_info.name);
                     });
                     toastr.success(response.msg);
-                }else{
+                } else {
                     toastr.error(response.msg);
                 }
-            }else{
-                $.each(response.error, function(prefix, val){
-                    $(form).find('span.'+prefix+'_error').text(val);
+            } else {
+                $.each(response.error, function(prefix, val) {
+                    $(form).find('span.' + prefix + '_error').text(val);
                 });
             }
         }
     });
-    });
+});
 
-    $('#user_profile_file').ijaboCropTool({
-          preview : '.ci-avatar-photo',
-          setRatio:1,
-          allowedExtensions: ['jpg', 'jpeg','png'],
-          processUrl:'<?= route_to('update-profile-picture') ?>',
-          withCSRF:['<?= csrf_token() ?>','<?= csrf_hash() ?>'],
-          onSuccess:function(message, element, status){
-            if(status == 1){
-                toastr.success(message);
-            }else
+$('#user_profile_file').ijaboCropTool({
+    preview: '.ci-avatar-photo',
+    setRatio: 1,
+    allowedExtensions: ['jpg', 'jpeg', 'png'],
+    processUrl: '<?= route_to('update-profile-picture') ?>',
+    withCSRF: ['<?= csrf_token() ?>', '<?= csrf_hash() ?>'],
+    onSuccess: function(message, element, status) {
+        if (status == 1) {
+            toastr.success(message);
+        } else
             toastr.error(message);
-          },
-          onError:function(message, element, status){
-            alert(message);
-          }
-      });
+    },
+    onError: function(message, element, status) {
+        alert(message);
+    }
+});
 
-      $('#change_password_form').on('submit', function(e){
-            e.preventDefault();
-            //CSRF Hash
-            var csrfName = $('.ci_csrf_data').attr('name'); //CSRF Token name
-            var csrfHash = $('.ci_csrf_data').val();
-            var form = this;
-            var formdata = new FormData(form);
-            formdata.append(csrfName,csrfHash)
+$('#change_password_form').on('submit', function(e) {
+    e.preventDefault();
+    //CSRF Hash
+    var csrfName = $('.ci_csrf_data').attr('name'); //CSRF Token name
+    var csrfHash = $('.ci_csrf_data').val();
+    var form = this;
+    var formdata = new FormData(form);
+    formdata.append(csrfName, csrfHash)
 
-            $.ajax({
-                url:$(form).attr('action'),
-                method:$(form).attr('method'),
-                data:formdata,
-                processData:false,
-                dataType:'json',
-                contentType:false,
-                cache:false,
-                beforeSend:function(){
-                    toastr.remove();
-                    $(form).find('span.error-text').text('');
-                },
-                success:function(response){
-                    //Update CSRF hash
-                    $('.ci_csrf_data').val(response.token);
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: formdata,
+        processData: false,
+        dataType: 'json',
+        contentType: false,
+        cache: false,
+        beforeSend: function() {
+            toastr.remove();
+            $(form).find('span.error-text').text('');
+        },
+        success: function(response) {
+            //Update CSRF hash
+            $('.ci_csrf_data').val(response.token);
 
-                    if($.isEmptyObject(response.error)){
-                        if(response.status == 1){
-                            $(form)[0].reset();
-                            toastr.success(response.msg);
-                        }else{
-                            toastr.error(response.msg);
-                        }
-                    }else{
-                        $.each(response.error, function(prefix, val){
-                            $(form).find('span.'+prefix+'_error').text(val);
-                        });
-                    }
+            if ($.isEmptyObject(response.error)) {
+                if (response.status == 1) {
+                    $(form)[0].reset();
+                    toastr.success(response.msg);
+                } else {
+                    toastr.error(response.msg);
                 }
-            });
-      });
-
+            } else {
+                $.each(response.error, function(prefix, val) {
+                    $(form).find('span.' + prefix + '_error').text(val);
+                });
+            }
+        }
+    });
+});
 </script>
 <?= $this->endSection()?>

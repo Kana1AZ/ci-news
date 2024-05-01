@@ -67,21 +67,19 @@
 
 <?= $this->endSection()?>
 <?= $this->section('stylesheets')?>
-    <link rel="stylesheet" href="/backend/src/plugins/datatables/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="/backend/src/plugins/datatables/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
-    <link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
+<link rel="stylesheet" href="/backend/src/plugins/datatables/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/backend/src/plugins/datatables/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.structure.min.css">
+<link rel="stylesheet" href="/extra-assets/jquery-ui-1.13.2/jquery-ui.theme.min.css">
 <?= $this->endSection()?>
 <?= $this->section('scripts')?>
-    <script src="/backend/src/plugins/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="/backend/src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
-    <script src="/backend/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
-    <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
-    <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
+<script src="/backend/src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+<script src="/backend/src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="/backend/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+<script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+<script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
 <script>
-    
-
 $(document).on('click', '#add-category-btn', function(e) {
     e.preventDefault();
     var modal = $('body').find('div#category-modal');
@@ -125,7 +123,7 @@ $('#add_category_form').on('submit', function(e) {
                     form.reset();
                     modal.modal('hide');
                     toastr.success(response.msg);
-                    categories_DT.ajax.reload(null,false); //update table withouut refreshing
+                    categories_DT.ajax.reload(null, false); //update table withouut refreshing
                 } else {
                     toastr.error(response.msg);
                 }
@@ -137,8 +135,8 @@ $('#add_category_form').on('submit', function(e) {
         }
     });
 });
-    //retrieve categories
-    var categories_DT = $('#categories-table').DataTable({
+//retrieve categories
+var categories_DT = $('#categories-table').DataTable({
     processing: true,
     serverSide: true,
     ajax: "<?= route_to('get-categories')?>",
@@ -151,20 +149,29 @@ $('#add_category_form').on('submit', function(e) {
     fnCreatedRow: function(row, data, index) {
         $('td', row).eq(0).html(index + 1);
     },
-    columnDefs: [
-        { orderable: false, targets: [0,1,2,3] },
-        { visible: false, targets: 4 }
+    columnDefs: [{
+            orderable: false,
+            targets: [0, 1, 2, 3]
+        },
+        {
+            visible: false,
+            targets: 4
+        }
     ],
-    order: [[4, 'asc']]
+    order: [
+        [4, 'asc']
+    ]
 });
 
 
-    //edit category
-    $(document).on('click', '.editCategoryBtn', function(e) {
-        e.preventDefault();
-       var category_id = $(this).data('id');
-       var url = '<?= route_to('get-category')?>';
-       $.get(url, {category_id:category_id}, function(response){
+//edit category
+$(document).on('click', '.editCategoryBtn', function(e) {
+    e.preventDefault();
+    var category_id = $(this).data('id');
+    var url = '<?= route_to('get-category')?>';
+    $.get(url, {
+        category_id: category_id
+    }, function(response) {
         var modal_title = 'Edit category';
         var modal_btn_text = 'Update';
         var modal = $('body').find('div#edit-category-modal');
@@ -174,82 +181,83 @@ $('#add_category_form').on('submit', function(e) {
         modal.find('input[type="text"]').val(response.data.name);
         modal.find('span.error-text').html('');
         modal.modal('show');
-       },'json');
-    });
+    }, 'json');
+});
 
-    //update category
-    $('#update_category_form').on('submit', function(e) {
-        e.preventDefault();
-        var csrfName = $(".ci_csrf_data").attr('name');
-        var csrfHash = $(".ci_csrf_data").val();
-        var form = this;
-        var modal = $('body').find('div#edit-category-modal');
-        var formData = new FormData(form);
-            formData.append(csrfName, csrfHash);
-        
-        $.ajax({
-            url: $(form).attr('action'),
-            method: $(form).attr('method'),
-            data: formData,
-            processData: false,
-            dataType: 'json',
-            contentType: false,
-            cache: false,
-            beforeSend: function() {
-                toastr.remove();
-                $(form).find('span.error-text').text('');
-            },
-            success: function(response) {
-                $('.ci_csrf_data').val(response.token);
-                if ($.isEmptyObject(response.error)) {
-                    if (response.status == 1) {
-                        form.reset();
-                        modal.modal('hide');
-                        toastr.success(response.msg);
-                        categories_DT.ajax.reload(null, false);
-                    } else {
-                        toastr.error(response.msg);
-                    }
+//update category
+$('#update_category_form').on('submit', function(e) {
+    e.preventDefault();
+    var csrfName = $(".ci_csrf_data").attr('name');
+    var csrfHash = $(".ci_csrf_data").val();
+    var form = this;
+    var modal = $('body').find('div#edit-category-modal');
+    var formData = new FormData(form);
+    formData.append(csrfName, csrfHash);
+
+    $.ajax({
+        url: $(form).attr('action'),
+        method: $(form).attr('method'),
+        data: formData,
+        processData: false,
+        dataType: 'json',
+        contentType: false,
+        cache: false,
+        beforeSend: function() {
+            toastr.remove();
+            $(form).find('span.error-text').text('');
+        },
+        success: function(response) {
+            $('.ci_csrf_data').val(response.token);
+            if ($.isEmptyObject(response.error)) {
+                if (response.status == 1) {
+                    form.reset();
+                    modal.modal('hide');
+                    toastr.success(response.msg);
+                    categories_DT.ajax.reload(null, false);
                 } else {
-                    $.each(response.error, function(prefix, val) {
-                        $(form).find('span.' + prefix + '_error').text(val);
-                    });
+                    toastr.error(response.msg);
                 }
+            } else {
+                $.each(response.error, function(prefix, val) {
+                    $(form).find('span.' + prefix + '_error').text(val);
+                });
             }
-        });
+        }
     });
+});
 
-    //delete category
-    $(document).on('click', '.deleteCategoryBtn', function(e) {
-        e.preventDefault();
-        var category_id = $(this).data('id');
-        var url = "<?= route_to('delete-category')?>";
-        swal.fire({
-            title: 'Are you sure?',
-            text: 'You are about to delete this category',
-            icon: 'warning',
-            showCloseButton: true,
-            showCancelButton: true,
-            cancelButtonText: 'No, cancel',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!',
-            width:'30%',
-            allowedOutsideClick: false
-        }).then(function(result){
-           if(result.value){
-                $.get(url, {category_id:category_id}, function(response){
-                    if(response.status == 1){
-                        toastr.success(response.msg);
-                        categories_DT.ajax.reload(null, false);
-                    }else{
-                        toastr.error(response.msg);
-                    }
+//delete category
+$(document).on('click', '.deleteCategoryBtn', function(e) {
+    e.preventDefault();
+    var category_id = $(this).data('id');
+    var url = "<?= route_to('delete-category')?>";
+    swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to delete this category',
+        icon: 'warning',
+        showCloseButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'No, cancel',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        width: '30%',
+        allowedOutsideClick: false
+    }).then(function(result) {
+        if (result.value) {
+            $.get(url, {
+                category_id: category_id
+            }, function(response) {
+                if (response.status == 1) {
+                    toastr.success(response.msg);
+                    categories_DT.ajax.reload(null, false);
+                } else {
+                    toastr.error(response.msg);
+                }
 
-                }, 'json');
-           } 
-        });
+            }, 'json');
+        }
     });
-
+});
 </script>
 <?= $this->endSection()?>

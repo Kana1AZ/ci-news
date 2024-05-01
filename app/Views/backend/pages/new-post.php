@@ -62,7 +62,7 @@
                         <span class="text-danger error-text category_error"></span>
                     </div>
                     <div class="form-group">
-                        <label for=""><b>Content</b></label>
+                        <label for=""><b>Notes</b></label>
                         <textarea name="content" id="" cols="30" rows="10" class="form-control"
                             placeholder="Type...."></textarea>
                         <span class="text-danger error-text content_error"></span>
@@ -85,7 +85,7 @@
                             <input type="radio" name="visibility" id="customRadio2" class="custom-control-input"
                                 value="0">
                             <label class="custom-control-label" for="customRadio2">Private</label>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

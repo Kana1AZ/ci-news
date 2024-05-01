@@ -2,8 +2,9 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light px-0">
             <a class="navbar-brand order-1 py-0" href="index.html">
-                <img loading="prelaod" decoding="async" class="img-fluid" src="/images/blog/<?= get_settings()->blog_logo ?>"
-                    alt="<?= get_settings()->blog_name?>" style="max-width:170px">
+                <img loading="prelaod" decoding="async" class="img-fluid"
+                    src="/images/blog/<?= get_settings()->blog_logo ?>" alt="<?= get_settings()->blog_name?>"
+                    style="max-width:170px">
             </a>
             <div class="navbar-actions order-3 ml-0 ml-md-4">
                 <button aria-label="navbar toggler" class="navbar-toggler border-0" type="button" data-toggle="collapse"
@@ -18,8 +19,7 @@
                     <li class="nav-item"> <a class="nav-link" href="">Home</a>
                     </li>
                     <?php foreach(get_categories() as $category):?>
-                    <li class="nav-item "> <a class="nav-link" href="#" role="button"
-                             aria-haspopup="true" >
+                    <li class="nav-item "> <a class="nav-link" href="#" role="button" aria-haspopup="true">
                             <?= $category->name?>
                         </a>
                     </li>
