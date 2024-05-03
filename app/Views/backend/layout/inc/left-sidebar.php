@@ -30,11 +30,16 @@
                     </a>
                     <ul class="submenu">
                         <li><a href="<?= route_to('all-posts')?>"
-                                class="<?= current_route_name() == 'all-posts' ? 'active' : '' ?>">All</a></li>
+                                class="<?= current_route_name() == 'all-posts' ? 'active' : '' ?>">
+                                </i> All</a> <!-- Icon added here for submenu -->
+                        </li>
                         <li><a href="<?= route_to('new-post')?>"
-                                class="<?= current_route_name() == 'new-post' ? 'active' : '' ?>">Add new</a></li>
+                                class="<?= current_route_name() == 'new-post' ? 'active' : '' ?>">
+                                </i> Add new</a> <!-- Icon added here for submenu -->
+                        </li>
                     </ul>
                 </li>
+
                 <li>
                     <div class="dropdown-divider"></div>
                 </li>
@@ -50,6 +55,16 @@
                         </span>
                     </a>
                 </li>
+
+                <?php if (get_user()->role === 'admin'): ?>
+                <li>
+                    <a href="<?= route_to('settings')?>"
+                        class="dropdown-toggle no-arrow <?= current_route_name() == 'settings' ? 'active' : '' ?>">
+                        <span class="micon dw dw-settings2"></span>
+                        <span class="mtext">Admin Panel</span>
+                    </a>
+                </li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>

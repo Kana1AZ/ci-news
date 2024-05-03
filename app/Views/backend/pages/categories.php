@@ -136,32 +136,65 @@ $('#add_category_form').on('submit', function(e) {
     });
 });
 //retrieve categories
-var categories_DT = $('#categories-table').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: "<?= route_to('get-categories')?>",
-    dom: "Brtip",
-    info: true,
-    language: {
-        info: "",
-        infoFiltered: ""
-    },
-    fnCreatedRow: function(row, data, index) {
-        $('td', row).eq(0).html(index + 1);
-    },
-    columnDefs: [{
-            orderable: false,
-            targets: [0, 1, 2, 3]
+    var categories_DT = $('#categories-table').DataTable({
+        scrollCollapse: true,
+        responsive: true,
+        autoWidth: false,
+        processing: true,
+        serverSide: true,
+        ajax: "<?= route_to('get-categories') ?>",
+        dom: "Brtip",
+        language: {
+            info: "",
+            infoFiltered: ""
         },
-        {
-            visible: false,
-            targets: 4
+        columnDefs: [
+            {
+                targets: [0], // Assuming column 0 is the index column
+                searchable: false,
+                orderable: false,
+                className: "dt-body-center"
+            }, {
+                targets: '_all',
+                orderable: true,
+                searchable: true
+            }
+        ],
+        order: [[4, 'asc']], // Adjust according to your column index
+        createdRow: function(row, data, dataIndex) {
+            // Assign the sequential index to the first column
+            $('td:eq(0)', row).html(dataIndex + 1);
         }
-    ],
-    order: [
-        [4, 'asc']
-    ]
-});
+    });
+
+    // Re-calculate column sizing and adjust DataTable layout on window resize
+    $(window).resize($.debounce(250, function() {
+        categories_DT.columns.adjust().responsive.recalc();
+    }));
+
+    // Debounce function to limit the rate at which a function is executed
+    (function($, sr) {
+        var debounce = function(func, threshold, execAsap) {
+            var timeout;
+
+            return function debounced() {
+                var obj = this, args = arguments;
+                function delayed() {
+                    if (!execAsap)
+                        func.apply(obj, args);
+                    timeout = null;
+                }
+
+                if (timeout)
+                    clearTimeout(timeout);
+                else if (execAsap)
+                    func.apply(obj, args);
+
+                timeout = setTimeout(delayed, threshold || 100);
+            };
+        };
+        jQuery.debounce = debounce;
+    })(jQuery);
 
 
 //edit category

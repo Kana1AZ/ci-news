@@ -70,71 +70,91 @@
 <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
 <script>
 //retrieve posts
-var posts_DT = $('table#posts-table').DataTable({
-    scrollCollapse: true,
-    responsive: true,
-    autoWidth: false,
-    processing: true,
-    serverSide: true,
-    ajax: "<?= route_to('get-posts') ?>",
-    dom: "IBfrtip",
-    info: true,
-    language: {
-        info: "",
-        infoFiltered: ""
-    },
-    fnCreateRow: function(row, data, index) {
-        $('td:eq(0)', row).html(index + 1); // Correctly targeting the first column for row index
-    },
-    columnDefs: [{
-            sortable: false,
-            targets: [0, 1, 5] // Assuming all columns except actions should be orderable
+var posts_DT = $('#posts-table').DataTable({
+        scrollCollapse: true,
+        responsive: true,
+        autoWidth: false,
+        processing: true,
+        serverSide: true,
+        ajax: "<?= route_to('get-posts') ?>",
+        dom: "IBfrtip",
+        language: {
+            info: "",
+            infoFiltered: ""
         },
-        {
-            searchable: true,
-            targets: [2] // Enabling search on the 'Title' column
-        },
-        {
-            searchable: false,
-            targets: [0, 1, 3, 4, 5] // Disabling search on all other columns
-        }
-    ],
-    order: [
-        [4, 'desc']
-    ] // Default order on the 'Title' column if needed
-});
-
-//delete post
-$(document).on('click', '.deletePostBtn', function(e) {
-    e.preventDefault();
-    var post_id = $(this).data('id');
-    //alert(post_id);
-    var url = "<?= route_to('delete-post')?>";
-    swal.fire({
-        title: 'Are you sure?',
-        text: 'You will not be able to recover this post!',
-        showCloseButton: true,
-        showCancelButton: true,
-        cancelButtonText: 'Cancel',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonColor: '#d33',
-        confirmButtonColor: '#556ee6',
-        width: '400px',
-        allowOutsideClick: false
-    }).then(function(result) {
-        if (result.value) {
-            $.getJSON(url, {
-                post_id: post_id
-            }, function(response) {
-                if (response.status == 1) {
-                    posts_DT.ajax.reload(null, false);
-                    toastr.success(response.msg);
-                } else {
-                    toastr.error(response.msg);
-                }
-            });
-        }
+        columnDefs: [
+            {
+                targets: [0], // Assuming column 0 is the index column
+                searchable: false,
+                orderable: false,
+                width: "5%",
+                className: "dt-body-center"
+            }, {
+                targets: '_all',
+                orderable: true,
+                searchable: true
+            }
+        ],
+        order: [[1, 'asc']], // Adjust according to your column index
     });
-});
+
+    // Re-calculate column sizing and adjust DataTable layout on window resize
+    $(window).resize($.debounce(250, function() {
+        posts_DT.columns.adjust().responsive.recalc();
+    }));
+
+// Including jQuery debounce to handle resize events better
+(function($,sr){
+    var debounce = function (func, threshold, execAsap) {
+        var timeout;
+
+        return function debounced () {
+            var obj = this, args = arguments;
+            function delayed () {
+                if (!execAsap)
+                    func.apply(obj, args);
+                timeout = null;
+            };
+
+            if (timeout)
+                clearTimeout(timeout);
+            else if (execAsap)
+                func.apply(obj, args);
+
+            timeout = setTimeout(delayed, threshold || 100);
+        };
+    };
+    jQuery.debounce = debounce;
+})(jQuery);
+
+    // Delete Post Functionality
+    $(document).on('click', '.deletePostBtn', function(e) {
+        e.preventDefault();
+        var post_id = $(this).data('id');
+        var url = "<?= route_to('delete-post') ?>";
+        swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this post!',
+            showCloseButton: true,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonColor: '#d33',
+            confirmButtonColor: '#556ee6',
+            width: '400px',
+            allowOutsideClick: false
+        }).then(function(result) {
+            if (result.value) {
+                $.getJSON(url, { post_id: post_id }, function(response) {
+                    if (response.status == 1) {
+                        posts_DT.ajax.reload(null, false);
+                        toastr.success(response.msg);
+                    } else {
+                        toastr.error(response.msg);
+                    }
+                });
+            }
+        });
+    });
 </script>
 <?= $this->endSection()?>

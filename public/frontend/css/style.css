@@ -718,7 +718,7 @@ a.post-title-sm:hover {
   text-decoration: underline;
 }
 .breadcrumbs a:last-child {
-  color: rgba(19, 19, 19, 0.5);
+  color: rgba(202, 0, 0, 0.5);
   pointer-events: none;
 }
 
@@ -943,3 +943,5 @@ footer .section {
   box-shadow: none;
 }
 /*# sourceMappingURL=style.css.map */
+
+

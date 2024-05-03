@@ -33,8 +33,6 @@
 
     <?php include('inc/header.php')?>
 
-    <?php include('inc/right-sidebar.php')?>
-
     <?php include('inc/left-sidebar.php')?>
 
     <div class="mobile-menu-overlay"></div>

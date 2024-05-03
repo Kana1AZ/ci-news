@@ -44,7 +44,7 @@
                         <input type="file" name="featured_image" class="form-control-file form-control" height="auto" />
                         <span class="text-danger error-text featured_image_error"></span>
                     </div>
-                    <div class="d-block mb-3" style="max-width: 250px;">
+                    <div class="d-block mb-3">
                         <img src="" alt="" class="img-thumbnail" id="image-previewer"
                             data-ijabo-default-img="/images/posts/resized_<?= $post->featured_image?>">
                     </div>

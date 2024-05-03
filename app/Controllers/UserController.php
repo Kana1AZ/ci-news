@@ -6,17 +6,15 @@ use App\Controllers\BaseController;
 use App\Libraries\CIAuth;
 use App\Models\User;
 use App\Libraries\Hash;
-use App\Models\Setting;
 use App\Models\Category;
 use SSP;
 use App\Models\Post;
-
 
 class UserController extends BaseController
 {
     protected $helpers = ["url", "form", "CIMail", "CIFunctions"];
     protected $db;
-    
+
 
     public function __construct()
     {
@@ -28,25 +26,31 @@ class UserController extends BaseController
     {
         $postModel = new \App\Models\Post(); // Assuming you have a Post model
         $userId = CIAuth::id();  // Get the logged-in user's ID.
-    
+        $userModel = new \App\Models\User();
+        $user = $userModel->find($userId);
+
+        // Check if user data is an array and convert to object if necessary
+        $user = is_array($user) ? (object) $user : $user;
+        $userRole = isset($user->role) ? $user->role : null;
+
         // Count total guarantees posted by the author
         $totalGuarantees = $postModel->where('author_id', $userId)->countAllResults();
-    
+
         // Count active guarantees (expiration date in the future)
         $activeGuarantees = $postModel->where('author_id', $userId)
                                        ->where('expiration_date >', date('Y-m-d'))
                                        ->countAllResults();
-    
+
         // Count expired guarantees (expiration date in the past)
         $expiredGuarantees = $postModel->where('author_id', $userId)
                                         ->where('expiration_date <=', date('Y-m-d'))
                                         ->countAllResults();
 
         // Get the 5 guarantees that are soon to expire
-         $soonToExpireGuarantees = $postModel->asObject()->where('author_id', $userId)
-                                    ->where('expiration_date >', date('Y-m-d')) // make sure to adjust this as per your requirements
-                                    ->orderBy('expiration_date', 'asc')
-                                    ->findAll(5); // Limit to 5 results
+        $soonToExpireGuarantees = $postModel->asObject()->where('author_id', $userId)
+                                   ->where('expiration_date >', date('Y-m-d')) // make sure to adjust this as per your requirements
+                                   ->orderBy('expiration_date', 'asc')
+                                   ->findAll(5); // Limit to 5 results
 
         $data = [
             "pageTitle" => "Dashboard",
@@ -57,7 +61,7 @@ class UserController extends BaseController
         ];
         return view("backend/pages/home", $data);
     }
-    
+
 
     public function logoutHandler()
     {
@@ -275,7 +279,7 @@ class UserController extends BaseController
             "pageTitle" => "Categories",
             "userId" => CIAuth::id()
         ];
-     //   echo view('categories', ['userId' => $userId]);
+        //   echo view('categories', ['userId' => $userId]);
         return view("backend/pages/categories", $data);
     }
 
@@ -340,7 +344,7 @@ class UserController extends BaseController
             "pass" => $this->db->password,
             "db" => $this->db->database,
         ];
-    
+
         $table = "categories";
         $primaryKey = "id";
 
@@ -360,22 +364,22 @@ class UserController extends BaseController
                 "dt" => 3,
                 "formatter" => function ($id, $row) {
                     return "<div class='btn-group'>
-                        <button class='btn btn-sm btn-link p-0 mx-1 editCategoryBtn' data-id='" . $row["id"] . "'>Edit</button>
-                        <button class='btn btn-sm btn-link p-0 mx-1 deleteCategoryBtn' data-id='" . $row["id"] . "'>Delete</button>
-                    </div>";
+                    <a href='javascript:void(0);' class='btn btn-info btn-sm editCategoryBtn' style='min-width:70%' data-id='{$row["id"]}'><i class='icon-copy dw dw-edit2'></i></a>
+                    <a href='javascript:void(0);' class='btn btn-danger btn-sm deleteCategoryBtn' style='min-width:70%' data-id='{$row["id"]}'><i class='icon-copy dw dw-delete-3'></i></a>
+                </div>";
                 },
             ],
             ["db" => "ordering", "dt" => 4],
         ];
-    
+
         // Custom WHERE condition to filter categories by the current user
-        $where = "author_id = " . CIAuth::id();    
+        $where = "author_id = " . CIAuth::id();
 
         return json_encode(
             SSP::complex($_GET, $dbDetails, $table, $primaryKey, $columns, $where)
         );
     }
-    
+
     //EDIT CATEGORY BUTTON
     public function getCategory()
     {
@@ -484,23 +488,23 @@ class UserController extends BaseController
     {
         $category = new Category();
         $userId = CIAuth::id();  // Get the logged-in user's ID.
-    
+
         $data = [
             "pageTitle" => "Add Post",
             "categories" => $category->asObject()->where('author_id', $userId)->findAll(),  // Only fetch categories created by the logged-in user.
         ];
-    
+
         return view("backend/pages/new-post", $data);
     }
 
     public function createPost()
     {
         $request = \Config\Services::request();
-       // helper([]);
-    
+        // helper([]);
+
         if ($request->isAJAX()) {
             $validation = \Config\Services::validation();
-    
+
             $this->validate([
                 "title" => [
                     "rules" => "required|is_unique[posts.title]",
@@ -539,7 +543,7 @@ class UserController extends BaseController
                     ],
                 ],
             ]);
-    
+
             if ($validation->run() === false) {
                 $errors = $validation->getErrors();
                 return $this->response->setJSON([
@@ -552,24 +556,23 @@ class UserController extends BaseController
                 $path = "images/posts/";
                 $file = $request->getFile("featured_image");
                 $filename = 'pimg_' . time() . $file->getClientName();
-    
+
                 // Make post featured image folder if not exist
                 if (!is_dir($path)) {
                     mkdir($path, 0777, true);
                 }
-    
+
                 // Move file to folder
                 if ($file->move($path, $filename)) {
                     \Config\Services::image()
                         ->withFile($path . $filename)
                         ->fit(150, 150, "center")
                         ->save($path . "thumb_" . $filename);
-    
+
                     \Config\Services::image()
                         ->withFile($path . $filename)
-                        ->resize(450, 300, true, "width")
                         ->save($path . "resized_" . $filename);
-    
+
                     // Save post data to DB
                     $post = new Post();
                     $data = [
@@ -582,7 +585,7 @@ class UserController extends BaseController
                         "expiration_date" => $request->getVar("expiration_date"), // Include expiration date
                     ];
                     $save = $post->insert($data);
-    
+
                     if ($save) {
                         return $this->response->setJSON([
                             "status" => 1,
@@ -605,7 +608,7 @@ class UserController extends BaseController
                 }
             }
         }
-    }  
+    }
 
     public function allPosts()
     {
@@ -615,7 +618,8 @@ class UserController extends BaseController
         return view("backend/pages/all-posts", $data);
     }
 
-    public function getPosts() {
+    public function getPosts()
+    {
         $dbDetails = [
             "host" => $this->db->hostname,
             "user" => $this->db->username,
@@ -650,13 +654,16 @@ class UserController extends BaseController
             ["db" => "id", "dt" => 5, "formatter" => function ($d, $row) {
                 $editUrl = route_to("edit-post", $row["id"]); // Assuming you have a named route for editing
                 return "<div class='btn-group'>
-                    <a href='" . $editUrl . "' data-color='#265ed7' style='color: rgb(38, 94, 215); margin-right: 60%;'><i class='icon-copy dw dw-edit2'></i></a>
-                    <a href='javascript:void(0);' class='deletePostBtn' data-id='" . $row["id"] . "' data-color='#e95959' style='color: rgb(233, 89, 89);'><i class='icon-copy dw dw-delete-3'></i></a>
+                <a href='" . $editUrl . "' class='btn btn-info btn-sm' style='min-width:80%;'>
+                <i class='icon-copy dw dw-edit2'></i>
+            </a>
+            <a href='javascript:void(0);' class='btn btn-danger btn-sm deletePostBtn' data-id='" . $row["id"] . "' style='min-width:80%;'>
+                <i class='icon-copy dw dw-delete-3'></i>
                 </div>";
             }],
         ];
         $where = "author_id = " . CIAuth::id();
-    
+
         return json_encode(
             SSP::complex($_GET, $dbDetails, $table, $primaryKey, $columns, $where)
         );
@@ -666,10 +673,10 @@ class UserController extends BaseController
     {
         $post = new Post();
         $category = new Category();
-        
+
         // Assuming CIAuth is your authentication helper and it can provide the current user's ID
         $userId = CIAuth::id();  // Get the logged-in user's ID
-    
+
         $data = [
             "pageTitle" => "Edit Post",
             "post" => $post->asObject()->find($id),

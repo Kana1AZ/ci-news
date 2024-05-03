@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12 col-sm-12">
             <div class="title">
-                <h4>Settings</h4>
+                <h4>Admin panel</h4>
             </div>
             <nav aria-label="breadcrumb" role="navigation">
                 <ol class="breadcrumb">
@@ -12,7 +12,7 @@
                         <a href="<?= route_to('admin.home')?>">Home</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        Settings
+                        Admin panel
                     </li>
                 </ol>
             </nav>
@@ -308,15 +308,6 @@ $('#users-table').DataTable({
     serverSide: true,
     searching: false,
     sortable: false,
-    render: function(data, type, row) {
-        return `<button class='btn btn-info btn-sm editUser' data-id='${row.id}'>Edit</button>
-                <button class='btn btn-danger btn-sm deleteUser' data-id='${row.id}'>Delete</button>`;
-    },
-    dom: "IBfrtip",
-    language: {
-        info: "",
-        infoFiltered: ""
-    },
     ajax: {
         url: '<?= route_to('get-users') ?>',
         error: function(xhr, error, code) {
@@ -345,12 +336,27 @@ $('#users-table').DataTable({
             searchable: false
         },
         {
-            data: 'actions',
+            data: null,
             orderable: false,
-            searchable: false
+            searchable: false,
+            render: function(data, type, row) {
+                var actions =
+                    `<button class='btn btn-info btn-sm editUser' data-id='${row.id}'>Edit</button>`;
+                if (row.id != <?= get_user()->id?>) {
+                    actions +=
+                        ` <button class='btn btn-danger btn-sm deleteUser' data-id='${row.id}'>Delete</button>`;
+                }
+                return actions;
+            }
         }
-    ]
+    ],
+    dom: "IBfrtip",
+    language: {
+        info: "",
+        infoFiltered: ""
+    }
 });
+
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
     if ($(e.target).attr("href") === "#user_management") {
@@ -362,25 +368,26 @@ $(document).ready(function() {
     // Handle Edit button click
     $('#users-table').on('click', '.editUser', function() {
         var userId = $(this).data('id');
-        // You can now use this userId to fetch user details and show them in a form for editing
-        //alert('Edit user with ID: ' + userId);
-        // Optionally, open a modal or redirect to an edit page with the user's data
     });
 
     // Handle Delete button click
-    $('#users-table').on('click', '.deleteUser', function() {
+    $(document).on('click', '.deleteUser', function() {
         var userId = $(this).data('id');
         if (confirm('Are you sure you want to delete this user?')) {
-            // Perform AJAX request to delete the user
             $.ajax({
-                url: '<?= route_to('delete-user') ?>', // Your route to the deletion logic
+                url: '<?= route_to('delete-user') ?>',
                 type: 'POST',
                 data: {
                     id: userId
                 },
                 success: function(response) {
-                    // Refresh DataTable or remove the row visually
-                    $('#users-table').DataTable().ajax.reload(); // Reload the data
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        $('#users-table').DataTable().ajax
+                    .reload(); // Reload the data table
+                    } else {
+                        alert(response.message); // Show error message
+                    }
                 },
                 error: function() {
                     alert('Error deleting user.');
@@ -388,6 +395,7 @@ $(document).ready(function() {
             });
         }
     });
+
 });
 
 

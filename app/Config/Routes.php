@@ -14,6 +14,7 @@ $routes->group('admin', static function($routes){
         $routes->get('home', 'UserController::index', ['as'=>'admin.home']);
         $routes->get('logout', 'UserController::logoutHandler', ['as'=>'admin.logout']);
         $routes->get('profile', 'UserController::profile', ['as'=>'admin.profile']);
+        $routes->get('left-sidebar', 'UserController::getUserRole', ['as'=>'left-sidebar']);
         $routes->post('update-personal-details', 'UserController::updatePersonalDetails', ['as'=>'update-personal-details']);
         $routes->post('update-profile-picture', 'UserController::updateProfilePicture', ['as'=>'update-profile-picture']);
         $routes->post('change-password', 'UserController::changePassword', ['as'=>'change-password']);        
@@ -24,7 +25,7 @@ $routes->group('admin', static function($routes){
         $routes->post('update-category', 'UserController::updateCategory', ['as'=>'update-category']);
         $routes->get('delete-category', 'UserController::deleteCategory', ['as'=>'delete-category']);
         $routes->get('reorder-categories', 'UController::reorderCategories', ['as'=>'reorder-categories']);
-        
+
         $routes->group('posts', static function($routes){
         $routes->get('new-post', 'UserController::addPost', ['as'=>'new-post']);
         $routes->post('create-post', 'UserController::createPost', ['as'=>'create-post']);
@@ -33,6 +34,7 @@ $routes->group('admin', static function($routes){
         $routes->get('edit-post/(:any)', 'UserController::editPost/$1', ['as'=>'edit-post']);
         $routes->post('update-post', 'UsernController::updatePost', ['as'=>'update-post']); 
         $routes->get('delete-post', 'UsernController::deletePost', ['as'=>'delete-post']);
+        
         });
     });
     $routes->group('', ['filter' => 'cifilter:guest'], static function($routes){

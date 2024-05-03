@@ -13,7 +13,7 @@
                     <div class="widget-data">
                         <div class="weight-700 font-24 text-dark"><?= $totalGuarantees?></div>
                         <div class="font-14 text-secondary weight-500">
-                            Guarantees saved
+                            Saved Guarantees
                         </div>
                     </div>
                     <div class="widget-icon">
@@ -82,12 +82,12 @@
                         <tbody>
                             <?php foreach ($soonToExpireGuarantees as $guarantee): ?>
                             <?php
-                $expirationTime = strtotime($guarantee->expiration_date);
-                $currentTime = time();
-                $timeDiff = $expirationTime - $currentTime;
-                $daysLeft = floor($timeDiff / (60 * 60 * 24));
-                $rowClass = $daysLeft < 3 ? 'expiring-soon' : '';
-            ?>
+                                $expirationTime = strtotime($guarantee->expiration_date);
+                                $currentTime = time();
+                                $timeDiff = $expirationTime - $currentTime;
+                                $daysLeft = floor($timeDiff / (60 * 60 * 24));
+                                $rowClass = $daysLeft < 3 ? 'expiring-soon' : '';
+                            ?>
                             <tr class="<?= $rowClass ?>">
                                 <td><?= esc($guarantee->title) ?></td>
                                 <td><?= esc($guarantee->expiration_date) ?></td>
@@ -97,7 +97,6 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>

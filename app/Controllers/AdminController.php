@@ -3,13 +3,9 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Libraries\CIAuth;
 use App\Models\User;
-use App\Libraries\Hash;
 use App\Models\Setting;
-use App\Models\Category;
-use SSP;
-use App\Models\Post;
+
 
 
 class AdminController extends BaseController
@@ -208,16 +204,47 @@ class AdminController extends BaseController
     
     public function deleteUser() {
         $userId = $this->request->getPost('id');
-        if ($userId) {
-            $model = new User(); // Assuming you have a UserModel for DB operations
-            if($model->delete($userId)) {
-                return $this->response->setJSON(['status' => 'success', 'message' => 'User deleted successfully']);
-            } else {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to delete user']);
-            }
+        if (!$userId) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'User ID is required']);
         }
-    }
-
+    
+        $userModel = new \App\Models\User();
+        $postModel = new \App\Models\Post();
+        $categoryModel = new \App\Models\Category();
+        $user = $userModel->find($userId);
+    
+        if (!$user) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'User not found']);
+        }
+    
+        // Start transaction to ensure data integrity
+        $this->db->transStart();
+            // Delete user's posts and associated images
+            $posts = $postModel->where('author_id', $userId)->findAll();
+            foreach ($posts as $post) {
+                $path = "images/posts/";
+                $imageFile = $path . $post['featured_image'];
+                if (!empty($post['featured_image']) && file_exists($imageFile)) {
+                    @unlink($imageFile);
+                    @unlink($path . "thumb_" . $post['featured_image']);
+                    @unlink($path . "resized_" . $post['featured_image']);
+                }
+                $postModel->delete($post['id']);
+            }
+    
+            // Delete categories created by the user
+            $categoryModel->where('author_id', $userId)->delete();
+    
+            // Delete user's profile picture
+            $profileImagePath = "images/users/";
+            if (!empty($user['picture']) && file_exists($profileImagePath . $user['picture'])) {
+                @unlink($profileImagePath . $user['picture']);
+            }
+    
+            // Finally, delete the user
+            $userModel->delete($userId);
+    }    
+    
     public function getUserDetails() {
         $userId = $this->request->getGet('id');
         $userModel = new \App\Models\User();

@@ -13,8 +13,6 @@ class Setting extends Model
         'blog_name',
         'blog_email',
         'blog_phone',
-        'blog_meta_keywords',
-        'blog_meta_description',
         'blog_logo',
         'blog_favicon',
     ];
