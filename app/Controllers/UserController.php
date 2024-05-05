@@ -369,7 +369,6 @@ class UserController extends BaseController
                 </div>";
                 },
             ],
-            ["db" => "ordering", "dt" => 4],
         ];
 
         // Custom WHERE condition to filter categories by the current user

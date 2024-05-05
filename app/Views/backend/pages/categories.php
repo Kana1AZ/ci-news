@@ -51,7 +51,6 @@
                             <th scope="col">Category</th>
                             <th scope="col">N. of items</th>
                             <th scope="col">Action</th>
-                            <th scope="col">Ordering</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,86 +135,117 @@ $('#add_category_form').on('submit', function(e) {
     });
 });
 //retrieve categories
-    var categories_DT = $('#categories-table').DataTable({
-        scrollCollapse: true,
-        responsive: true,
-        autoWidth: false,
-        processing: true,
-        serverSide: true,
-        ajax: "<?= route_to('get-categories') ?>",
-        dom: "Brtip",
-        language: {
-            info: "",
-            infoFiltered: ""
-        },
-        columnDefs: [
-            {
-                targets: [0], // Assuming column 0 is the index column
-                searchable: false,
-                orderable: false,
-                className: "dt-body-center"
-            }, {
-                targets: '_all',
-                orderable: true,
-                searchable: true
-            }
-        ],
-        order: [[4, 'asc']], // Adjust according to your column index
-        createdRow: function(row, data, dataIndex) {
-            // Assign the sequential index to the first column
-            $('td:eq(0)', row).html(dataIndex + 1);
-        }
-    });
+var categories_DT = $('#categories-table').DataTable({
+    scrollCollapse: true,
+    responsive: true,
+    autoWidth: false,
+    processing: true,
+    serverSide: true,
+    ajax: "<?= route_to('get-categories') ?>",
+    dom: "Brtip",
+    language: {
+        info: "",
+        infoFiltered: ""
+    },
+    columnDefs: [{
+        targets: [0], // Assuming column 0 is the index column
+        searchable: false,
+        orderable: false,
+        className: "dt-body-center"
+    }, {
+        targets: '_all',
+        orderable: true,
+        searchable: true
+    }],
+    order: [
+        [2, 'asc']
+    ], // Adjust according to your column index
+    createdRow: function(row, data, dataIndex) {
+        // Assign the sequential index to the first column
+        $('td:eq(0)', row).html(dataIndex + 1);
+    },
+    drawCallback: function(settings) {
+        // Now bind the click event after the table is drawn
+        $('.editCategoryBtn').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log('Edit button clicked, category ID:', $(this).data('id'));
+            var category_id = $(this).data('id');
+            var url = '<?= route_to('get-category')?>';
+            $.get(url, {
+                category_id: category_id
+            }, function(response) {
+                var modal_title = 'Edit category';
+                var modal_btn_text = 'Update';
+                var modal = $('body').find('div#edit-category-modal');
+                modal.find('form').find('input[type="hidden"][name="category_id"]').val(
+                    category_id);
+                modal.find('.modal-title').html(modal_title);
+                modal.find('.modal-footer button.action').html(modal_btn_text);
+                modal.find('input[type="text"]').val(response.data.name);
+                modal.find('span.error-text').html('');
+                modal.modal('show');
+            }, 'json');
+        });
 
-    // Re-calculate column sizing and adjust DataTable layout on window resize
-    $(window).resize($.debounce(250, function() {
-        categories_DT.columns.adjust().responsive.recalc();
-    }));
+        $('.deleteCategoryBtn').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log('Delete button clicked, category ID:', $(this).data('id'));
+            var category_id = $(this).data('id');
+            var url = "<?= route_to('delete-category')?>";
+            swal.fire({
+                title: 'Are you sure?',
+                text: 'You are about to delete this category',
+                icon: 'warning',
+                showCloseButton: true,
+                showCancelButton: true,
+                cancelButtonText: 'No, cancel',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                width: '30%',
+                allowedOutsideClick: false
+            }).then(function(result) {
+                if (result.value) {
+                    $.get(url, {
+                        category_id: category_id
+                    }, function(response) {
+                        if (response.status == 1) {
+                            toastr.success(response.msg);
+                            categories_DT.ajax.reload(null, false);
+                        } else {
+                            toastr.error(response.msg);
+                        }
 
-    // Debounce function to limit the rate at which a function is executed
-    (function($, sr) {
-        var debounce = function(func, threshold, execAsap) {
-            var timeout;
-
-            return function debounced() {
-                var obj = this, args = arguments;
-                function delayed() {
-                    if (!execAsap)
-                        func.apply(obj, args);
-                    timeout = null;
+                    }, 'json');
                 }
-
-                if (timeout)
-                    clearTimeout(timeout);
-                else if (execAsap)
-                    func.apply(obj, args);
-
-                timeout = setTimeout(delayed, threshold || 100);
-            };
-        };
-        jQuery.debounce = debounce;
-    })(jQuery);
-
-
-//edit category
-$(document).on('click', '.editCategoryBtn', function(e) {
-    e.preventDefault();
-    var category_id = $(this).data('id');
-    var url = '<?= route_to('get-category')?>';
-    $.get(url, {
-        category_id: category_id
-    }, function(response) {
-        var modal_title = 'Edit category';
-        var modal_btn_text = 'Update';
-        var modal = $('body').find('div#edit-category-modal');
-        modal.find('form').find('input[type="hidden"][name="category_id"]').val(category_id);
-        modal.find('.modal-title').html(modal_title);
-        modal.find('.modal-footer button.action').html(modal_btn_text);
-        modal.find('input[type="text"]').val(response.data.name);
-        modal.find('span.error-text').html('');
-        modal.modal('show');
-    }, 'json');
+            });
+        });
+    }
 });
+
+// Re-calculate column sizing and adjust DataTable layout on window resize
+$(window).resize($.debounce(250, function() {
+    categories_DT.columns.adjust().responsive.recalc();
+}));
+
+// Debounce function to limit the rate at which a function is executed
+(function($) {
+    $.debounce = function(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this,
+                args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    };
+})(jQuery);
 
 //update category
 $('#update_category_form').on('submit', function(e) {
@@ -255,40 +285,6 @@ $('#update_category_form').on('submit', function(e) {
                     $(form).find('span.' + prefix + '_error').text(val);
                 });
             }
-        }
-    });
-});
-
-//delete category
-$(document).on('click', '.deleteCategoryBtn', function(e) {
-    e.preventDefault();
-    var category_id = $(this).data('id');
-    var url = "<?= route_to('delete-category')?>";
-    swal.fire({
-        title: 'Are you sure?',
-        text: 'You are about to delete this category',
-        icon: 'warning',
-        showCloseButton: true,
-        showCancelButton: true,
-        cancelButtonText: 'No, cancel',
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!',
-        width: '30%',
-        allowedOutsideClick: false
-    }).then(function(result) {
-        if (result.value) {
-            $.get(url, {
-                category_id: category_id
-            }, function(response) {
-                if (response.status == 1) {
-                    toastr.success(response.msg);
-                    categories_DT.ajax.reload(null, false);
-                } else {
-                    toastr.error(response.msg);
-                }
-
-            }, 'json');
         }
     });
 });

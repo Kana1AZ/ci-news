@@ -24,7 +24,7 @@ $routes->group('admin', static function($routes){
         $routes->get('get-category', 'UserController::getCategory', ['as'=>'get-category']);
         $routes->post('update-category', 'UserController::updateCategory', ['as'=>'update-category']);
         $routes->get('delete-category', 'UserController::deleteCategory', ['as'=>'delete-category']);
-        $routes->get('reorder-categories', 'UController::reorderCategories', ['as'=>'reorder-categories']);
+        $routes->get('reorder-categories', 'UserController::reorderCategories', ['as'=>'reorder-categories']);
 
         $routes->group('posts', static function($routes){
         $routes->get('new-post', 'UserController::addPost', ['as'=>'new-post']);
@@ -32,8 +32,8 @@ $routes->group('admin', static function($routes){
         $routes->get('/', 'UserController::allPosts', ['as'=>'all-posts']);
         $routes->get('get-posts', 'UserController::getPosts', ['as'=>'get-posts']);
         $routes->get('edit-post/(:any)', 'UserController::editPost/$1', ['as'=>'edit-post']);
-        $routes->post('update-post', 'UsernController::updatePost', ['as'=>'update-post']); 
-        $routes->get('delete-post', 'UsernController::deletePost', ['as'=>'delete-post']);
+        $routes->post('update-post', 'UserController::updatePost', ['as'=>'update-post']); 
+        $routes->get('delete-post', 'UserController::deletePost', ['as'=>'delete-post']);
         
         });
     });
@@ -56,7 +56,7 @@ $routes->group('admin', static function($routes){
         $routes->post('delete-user', 'AdminController::deleteUser', ['as' => 'delete-user']);
         $routes->get('get-user-details', 'AdminController::getUserDetails', ['as' => 'get-user-details']);
         $routes->post('update-user-details', 'AdminController::updateUserDetails', ['as' => 'update-user-details']);
-        $routes->post('update-general-settings', 'AdmController::updateGeneralSettings', ['as'=>'update-general-settings']);
+        $routes->post('update-general-settings', 'AdminController::updateGeneralSettings', ['as'=>'update-general-settings']);
         $routes->post('update-blog-logo', 'AdminController::updateBlogLogo', ['as'=>'update-blog-logo']);
     });
         
