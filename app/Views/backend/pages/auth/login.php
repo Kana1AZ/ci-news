@@ -6,7 +6,7 @@
         <h2 class="text-center text-primary">Login</h2>
     </div>
     <?php $validation = \Config\Services::validation();?>
-    <form action="<?= route_to('admin.login.handler')?>" method="POST">
+    <form action="<?= route_to('login.handler')?>" method="POST">
         <?= csrf_field()?>
         <?php if(!empty(session()->getFlashdata('success'))) : ?>
         <div class="alert alert-success">
@@ -57,7 +57,7 @@
             </div>
             <div class="col-6">
                 <div class="forgot-password">
-                    <a href="<?= route_to('admin.forgot.form')?>">Forgot Password</a>
+                    <a href="<?= route_to('forgot.form')?>">Forgot Password</a>
                 </div>
             </div>
         </div>

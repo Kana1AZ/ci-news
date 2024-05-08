@@ -30,12 +30,12 @@
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
                 <a href="login.html">
-                    <img src="/backend/vendors/images/deskapp-logo.svg" alt="" />
+                <img src="/images/blog/<?= get_settings()->blog_logo?>">
                 </a>
             </div>
             <div class="login-menu">
                 <ul>
-                    <li><a href="<?= route_to('admin.register.form')?>">Register</a></li>
+                    <li><a href="<?= route_to('register.form')?>">Register</a></li>
                 </ul>
             </div>
         </div>

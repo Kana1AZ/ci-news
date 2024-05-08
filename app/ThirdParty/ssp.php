@@ -378,7 +378,8 @@ class SSP {
             $sql = $bindings;
         }
 
-        $stmt = $db->prepare( $sql );
+        // Prepare statement
+        $stmt = $db->prepare($sql);
         //echo $sql;
 
         // Bind parameters

@@ -6,7 +6,7 @@
         <h2 class="text-center text-primary">Register</h2>
     </div>
     <?php $validation = \Config\Services::validation();?>
-    <form action="<?= route_to('admin.register.handler')?>" method="POST">
+    <form action="<?= route_to('register.handler')?>" method="POST">
         <?= csrf_field()?>
         <div class="input-group custom">
             <input type="text" class="form-control form-control-lg" placeholder="Username or Email" name="email"
@@ -53,7 +53,7 @@
             </div>
             <div class="col-6">
                 <div class="forgot-password">
-                    <a href="<?= route_to('admin.forgot.form')?>">Forgot Password</a>
+                    <a href="<?= route_to('forgot.form')?>">Forgot Password</a>
                 </div>
             </div>
         </div>

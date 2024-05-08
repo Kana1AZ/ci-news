@@ -5,15 +5,14 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'BlogController::index');
+$routes->get('/', 'AuthController::loginForm');
 
-$routes->group('admin', static function($routes){
   
     $routes->group('', ['filter' => 'cifilter:auth'], static function($routes){
        // $routes->view('example-page', 'example-page');
-        $routes->get('home', 'UserController::index', ['as'=>'admin.home']);
-        $routes->get('logout', 'UserController::logoutHandler', ['as'=>'admin.logout']);
-        $routes->get('profile', 'UserController::profile', ['as'=>'admin.profile']);
+        $routes->get('home', 'UserController::index', ['as'=>'home']);
+        $routes->get('logout', 'UserController::logoutHandler', ['as'=>'logout']);
+        $routes->get('profile', 'UserController::profile', ['as'=>'profile']);
         $routes->get('left-sidebar', 'UserController::getUserRole', ['as'=>'left-sidebar']);
         $routes->post('update-personal-details', 'UserController::updatePersonalDetails', ['as'=>'update-personal-details']);
         $routes->post('update-profile-picture', 'UserController::updateProfilePicture', ['as'=>'update-profile-picture']);
@@ -39,13 +38,13 @@ $routes->group('admin', static function($routes){
     });
     $routes->group('', ['filter' => 'cifilter:guest'], static function($routes){
        // $routes->view('example-auth', 'example-auth');
-       $routes->get('login', 'AuthController::loginForm', ['as'=>'admin.login.form']);
-       $routes->post('login', 'AuthController::loginHandler', ['as'=>'admin.login.handler']);
-       $routes->get('register', 'AuthController::registerForm', ['as'=>'admin.register.form']);
-       $routes->post('register', 'AuthController::registerHandler', ['as'=>'admin.register.handler']);
-       $routes->get('forgot-password', 'AuthController::forgotForm', ['as'=>'admin.forgot.form']);
+       $routes->get('login', 'AuthController::loginForm', ['as'=>'login.form']);
+       $routes->post('login', 'AuthController::loginHandler', ['as'=>'login.handler']);
+       $routes->get('register', 'AuthController::registerForm', ['as'=>'register.form']);
+       $routes->post('register', 'AuthController::registerHandler', ['as'=>'register.handler']);
+       $routes->get('forgot-password', 'AuthController::forgotForm', ['as'=>'forgot.form']);
        $routes->post('send-password-reset-link', 'AuthController::sendPasswordResetLink', ['as'=>'send_password_reset_link']);
-       $routes->get('password/reset/(:any)', 'AuthController::resetPassword/$1', ['as'=>'admin.reset-password']);
+       $routes->get('password/reset/(:any)', 'AuthController::resetPassword/$1', ['as'=>'reset-password']);
        $routes->post('reset-password-handler/(:any)', 'AuthController::resetPasswordHandler/$1', ['as'=>'reset-password-handler'] );
     });
     
@@ -60,4 +59,3 @@ $routes->group('admin', static function($routes){
         $routes->post('update-blog-logo', 'AdminController::updateBlogLogo', ['as'=>'update-blog-logo']);
     });
         
-});

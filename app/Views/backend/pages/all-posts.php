@@ -10,7 +10,7 @@
             <nav aria-label="breadcrumb" role="navigation">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="<?= route_to('admin.home')?>">Home</a>
+                        <a href="<?= route_to('home')?>">Home</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
                         All guarantees
@@ -77,13 +77,13 @@ var posts_DT = $('#posts-table').DataTable({
     processing: true,
     serverSide: true,
     ajax: "<?= route_to('get-posts') ?>",
-    dom: "IBfrtip",
+    dom: "1Bfrtip",
     language: {
         info: "",
         infoFiltered: ""
     },
     columnDefs: [{
-        targets: [0], // Assuming column 0 is the index column
+        targets: [0],
         searchable: false,
         orderable: false,
         width: "5%",
@@ -95,7 +95,7 @@ var posts_DT = $('#posts-table').DataTable({
     }],
     order: [
         [1, 'asc']
-    ], // Adjust according to your column index
+    ],
 
     drawCallback: function(settings) {
         $(document).on('click', '.deletePostBtn', function(e) {
@@ -131,12 +131,10 @@ var posts_DT = $('#posts-table').DataTable({
     }
 });
 
-// Re-calculate column sizing and adjust DataTable layout on window resize
 $(window).resize($.debounce(250, function() {
     posts_DT.columns.adjust().responsive.recalc();
 }));
 
-// Including jQuery debounce to handle resize events better
 (function($, sr) {
     var debounce = function(func, threshold, execAsap) {
         var timeout;

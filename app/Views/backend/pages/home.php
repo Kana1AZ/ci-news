@@ -106,7 +106,6 @@
 .expiring-soon {
     background-color: #ff1f00;
     color: white;
-    /* Adjust text color if needed */
 }
 </style>
 
@@ -122,7 +121,7 @@ var x<?= $guarantee->id ?> = setInterval(function() {
     if (distance < 0) {
         clearInterval(x<?= $guarantee->id ?>);
         timerElement.innerHTML = "EXPIRED";
-        timerElement.closest('tr').classList.add("expired"); // Add expired class if needed
+        timerElement.closest('tr').classList.add("expired");
     } else {
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -130,7 +129,6 @@ var x<?= $guarantee->id ?> = setInterval(function() {
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
         timerElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
 
-        // Update row color dynamically
         if (days < 3) {
             timerElement.closest('tr').classList.add("expiring-soon");
         } else {

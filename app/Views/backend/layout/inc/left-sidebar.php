@@ -1,6 +1,6 @@
 <div class="left-side-bar">
     <div class="brand-logo">
-        <a href="index.html">
+        <a href="<?= route_to('home');?>">
             <img src="/images/blog/<?= get_settings()->blog_logo?>" alt="" class="dark-logo" />
             <img src="/images/blog/<?= get_settings()->blog_logo?>" alt="" class="light-logo" />
         </a>
@@ -12,8 +12,8 @@
         <div class="sidebar-menu">
             <ul id="accordion-menu">
                 <li>
-                    <a href="<?= route_to('admin.home');?>"
-                        class="dropdown-toggle no-arrow <?= current_route_name() == 'admin.home' ? 'active' : '' ?>">
+                    <a href="<?= route_to('home');?>"
+                        class="dropdown-toggle no-arrow <?= current_route_name() == 'home' ? 'active' : '' ?>">
                         <span class="micon dw dw-home"></span><span class="mtext">Home</span>
                     </a>
                 </li>
@@ -48,8 +48,8 @@
                 </li>
 
                 <li>
-                    <a href="<?= route_to("admin.profile");?>"
-                        class="dropdown-toggle no-arrow <?= current_route_name() == 'admin.profile' ? 'active' : '' ?>">
+                    <a href="<?= route_to("profile");?>"
+                        class="dropdown-toggle no-arrow <?= current_route_name() == 'profile' ? 'active' : '' ?>">
                         <span class="micon dw dw-user"></span>
                         <span class="mtext">Profile
                         </span>

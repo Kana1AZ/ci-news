@@ -24,7 +24,6 @@ class AuthController extends BaseController
     }
 
     public function registerHandler(){
-        //return view('backend/pages/auth/login');
 
         $isValid = $this->validate([
             'email' => [
@@ -61,12 +60,12 @@ class AuthController extends BaseController
             $user->insert([
                 'email' => $this->request->getVar('email'),
                 'password' => Hash::make($this->request->getVar('password')),
-                'role' => 'user', // Default role as 'user
+                'role' => 'user',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]);
 
-            return redirect()->route('admin.login.form')->with('success', 'Account created successfully. Please login');
+            return redirect()->route('login.form')->with('success', 'Account created successfully. Please login');
         }
     }
 
@@ -133,10 +132,10 @@ class AuthController extends BaseController
             $check_password = Hash::check($this->request->getVar('password'), $userInfo['password']);
 
             if (!$check_password){ 
-                return redirect()->route('admin.login.form')->with('fail', 'Wrong password')->withInput();
+                return redirect()->route('login.form')->with('fail', 'Wrong password')->withInput();
             }else{
                 CIAUth::setClAuth($userInfo);
-                return redirect()->route('admin.home');
+                return redirect()->route('home');
             }
         }
     }
@@ -191,9 +190,7 @@ class AuthController extends BaseController
                 ]);
             }
 
-            //Create action link
-          //  $actionLink = route_to('admin.reset-password', $token);
-            $actionLink = base_url(route_to('admin.reset-password', $token));
+            $actionLink = base_url(route_to('reset-password', $token));
 
             $mail_data = array(
                 'actionLink' => $actionLink,
@@ -214,9 +211,9 @@ class AuthController extends BaseController
 
             //Send email
             if( sendEmail($mail_config)){
-                return redirect()->route('admin.forgot.form')->with('success', 'Password reset link has been sent to your e-mail address');
+                return redirect()->route('forgot.form')->with('success', 'Password reset link has been sent to your e-mail address');
             }else{
-                return redirect()->route('admin.forgot.form')->with('fail', 'Something went wrong');
+                return redirect()->route('forgot.form')->with('fail', 'Something went wrong');
             }
         }
     }
@@ -226,13 +223,13 @@ class AuthController extends BaseController
         $check_token = $passwordResetPassword->asObject()->where('token', $token)->first();
 
         if(!$check_token){
-            return redirect()->route('admin.forgot.form')->with('fail', 'Invalid password reset token, request new password reset link');
+            return redirect()->route('forgot.form')->with('fail', 'Invalid password reset token, request new password reset link');
         }else{
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $check_token->created_at)->diffInMinutes(Carbon::now());
        
             if($diffMins > 15){
                 //if token expired (older than 15 minutes)
-                return redirect()->route('admin.forgot.form')->with('fail', 'Token expired. Request new password reset link');
+                return redirect()->route('forgot.form')->with('fail', 'Token expired. Request new password reset link');
             }else{
                 return view('backend/pages/auth/reset',[
                 'pageTitle'=>'Reset password', 
@@ -311,7 +308,7 @@ class AuthController extends BaseController
                     
                     //Redirect and display message on login page
 
-                    return redirect()->route('admin.login.form')->with('success', 'Your password has been updated. Use your new password to login');
+                    return redirect()->route('login.form')->with('success', 'Your password has been updated. Use your new password to login');
                 }else{
                     return redirect()->back()->with('fail', 'Something went wrong')->withInput();
                 }

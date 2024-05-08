@@ -10,7 +10,7 @@
             <nav aria-label="breadcrumb" role="navigation">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
-                        <a href="<?= route_to('admin.home')?>">Home</a>
+                        <a href="<?= route_to('home')?>">Home</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
                         Edit post
@@ -80,20 +80,6 @@
                         <textarea name="content" id="" cols="30" rows="10" class="form-control"
                             placeholder="Type...."><?= $post->content?></textarea>
                         <span class="text-danger error-text content_error"></span>
-                    </div>
-                    <hr>
-                    <div class="form-group">
-                        <label for=""><b>Visibility</b></label>
-                        <div class="custom-control custom-radio mb-5">
-                            <input type="radio" name="visibility" id="customRadio1" class="custom-control-input"
-                                value="1" <?= $post->visibility == 1 ? 'checked' :''?>>
-                            <label class="custom-control-label" for="customRadio1">Public</label>
-                        </div>
-                        <div class="custom-control custom-radio mb-5">
-                            <input type="radio" name="visibility" id="customRadio2" class="custom-control-input"
-                                value="0" <?= $post->visibility == 0 ? 'checked' :''?>>
-                            <label class="custom-control-label" for="customRadio2">Private</label>
-                        </div>
                     </div>
                 </div>
             </div>

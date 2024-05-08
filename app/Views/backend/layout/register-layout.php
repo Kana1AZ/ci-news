@@ -35,7 +35,7 @@
             </div>
             <div class="login-menu">
                 <ul>
-                    <li><a href="<?= route_to('admin.login.form')?>">Login</a></li>
+                    <li><a href="<?= route_to('login.form')?>">Login</a></li>
                 </ul>
             </div>
         </div>

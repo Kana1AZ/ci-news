@@ -25,7 +25,7 @@ if (!function_exists('get_settings')){
         if(!$settings_data){
             $data = array(
                 'blog_name' => 'Guarantees',
-                'blog_email' => 'info@cinews.test',
+                'blog_email' => 'info@guarantees.test',
                 'blog_phone' => null,
                 'blog_logo' => null,
                 'blog_favicon' => null,
@@ -42,7 +42,7 @@ if (!function_exists('get_settings')){
 if(!function_exists('current_route_name')){
     function current_route_name(){
         $router = \CodeIgniter\Config\Services::router();
-        $route_name = $router->getMatchedRouteOptions()['as'];
+        $route_name = $router->getMatchedRouteOptions();
         return $route_name;
     }
 }
