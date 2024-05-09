@@ -36,7 +36,6 @@ class UserController extends BaseController
 
         // Check if user data is an array and convert to object if necessary
         $user = is_array($user) ? (object) $user : $user;
-        $userRole = isset($user->role) ? $user->role : null;
 
         // Count total guarantees posted by the author
         $totalGuarantees = $postModel->where('author_id', $this->id)->countAllResults();
@@ -328,52 +327,78 @@ class UserController extends BaseController
     }
 
     public function getCategories()
-    {
-        $dbDetails = [
-            "host" => $this->db->hostname,
-            "user" => $this->db->username,
-            "pass" => $this->db->password,
-            "db" => $this->db->database,
-        ];
-    
-        $table = "categories";
-        $primaryKey = "id";
-    // Retrieve start value from query parameters
-        $start = $this->request->getGet('start') ? intval($this->request->getGet('start')) : 0;
+{
+    $db = db_connect();
+    $currentUserId = $this->id;
 
-        $columns = [
-            ["db" => "id", "dt" => 0, 'formatter' => function ($d, $row) use ($start) {
-                static $counter = 0;  // Initialize counter only once per request
-                return $start + (++$counter);  // Increment counter starting from the current page's start index
-            }],
-            ["db" => "name", "dt" => 1],
-            [
-                "db" => "id",
-                "dt" => 2,
-                "formatter" => function ($id, $row) {
-                    $post = new Post();
-                    return $post->where("category_id", $row["id"])->countAllResults();
-                },
-            ],
-            [
-                "db" => "id",
-                "dt" => 3,
-                "formatter" => function ($id, $row) {
-                    return "<div class='btn-group'>
-                        <a href='javascript:void(0);' class='btn btn-info btn-sm editCategoryBtn' style='min-width:70%' data-id='{$row["id"]}'><i class='icon-copy dw dw-edit2'></i></a>
-                        <a href='javascript:void(0);' class='btn btn-danger btn-sm deleteCategoryBtn' style='min-width:70%' data-id='{$row["id"]}'><i class='icon-copy dw dw-delete-3'></i></a>
-                    </div>";
-                },
-            ],
-        ];
+    // DataTables parameters
+    $start = $this->request->getGet('start') ?? 0;
+    $length = $this->request->getGet('length') ?? 10;
+    $draw = $this->request->getGet('draw') ?? 1;
+    $order = $this->request->getGet('order');
 
-        // Custom WHERE condition to filter categories by the current user
-        $where = "author_id = " . $this->id;
+    // Columns array must exactly match the order in the DataTables initialization
+    $columns = ['id', 'name', 'post_count'];
+    $orderColumnIndex = isset($order[0]['column']) ? $order[0]['column'] : 1; // Default to 'name'
+    $orderDir = isset($order[0]['dir']) ? $order[0]['dir'] : 'asc';
 
-        return json_encode(
-            SSP::complex($_GET, $dbDetails, $table, $primaryKey, $columns, $where)
-        );
+    // Check if the column index is for post count and adjust query
+    if (isset($columns[$orderColumnIndex]) && $columns[$orderColumnIndex] === 'post_count') {
+        // Special handling for ordering by post count
+        $query = $db->table('categories')
+                    ->select('categories.id, categories.name, COUNT(posts.id) as post_count')
+                    ->join('posts', 'posts.category_id = categories.id', 'left')
+                    ->where('categories.author_id', $currentUserId)
+                    ->groupBy('categories.id')
+                    ->orderBy('post_count', $orderDir);
+    } else {
+        // Standard ordering
+        $query = $db->table('categories')
+                    ->select('id, name')
+                    ->where('author_id', $currentUserId)
+                    ->orderBy($columns[$orderColumnIndex], $orderDir);
     }
+
+    $query = $query->limit($length, $start);
+    $data = $query->get()->getResultArray();
+    $totalRecords = $db->table('categories')
+                       ->where('author_id', $currentUserId)
+                       ->countAllResults();
+
+    // Prepare the data for DataTables
+    $result = [
+        'draw' => intval($draw),
+        'recordsTotal' => $totalRecords,
+        'recordsFiltered' => $totalRecords,
+        'data' => []
+    ];
+    foreach ($data as $index => $row) {
+        $result['data'][] = [
+            $start + $index + 1,
+            $row['name'],
+            $row['post_count'] ?? $this->getPostCount($row['id'], $this->id),
+            $this->getActionButtons($row['id'])
+        ];
+    }
+
+    return $this->response->setJSON($result);
+}
+    
+    private function getPostCount($categoryId, $userId) {
+        $db = db_connect();
+        return $db->table('posts')
+                  ->where('category_id', $categoryId)
+                  ->where('author_id', $userId)  // Filter posts by user ID as well
+                  ->countAllResults();
+    }
+    
+    private function getActionButtons($categoryId) {
+        return "<div class='btn-group'>
+            <a href='javascript:void(0);' class='btn btn-info btn-sm editCategoryBtn' data-id='{$categoryId} style='min-width:80%;'><i class='icon-copy dw dw-edit2' ></i></a>
+            <a href='javascript:void(0);' class='btn btn-danger btn-sm deleteCategoryBtn' data-id='{$categoryId} style='min-width:80%;'><i class='icon-copy dw dw-delete-3'></i></a>
+        </div>";
+    }
+    
 
     //EDIT CATEGORY BUTTON
     public function getCategory()
@@ -603,59 +628,91 @@ class UserController extends BaseController
 
     public function getPosts()
     {
-        $dbDetails = [
-            "host" => $this->db->hostname,
-            "user" => $this->db->username,
-            "pass" => $this->db->password,
-            "db" => $this->db->database,
+        $db = db_connect();  // Establish database connection
+    
+        // Retrieve DataTables parameters
+        $start = $this->request->getGet('start') ?? 0;
+        $length = $this->request->getGet('length') ?? 10;
+        $draw = $this->request->getGet('draw') ?? 1;
+        $order = $this->request->getGet('order');
+        $search = $this->request->getGet('search')['value'] ?? '';  // Search value
+    
+        $orderColumn = $order[0]['column'];  // Column index
+        $orderDirection = $order[0]['dir'];  // Direction 'asc' or 'desc'
+    
+        // Mapping DataTables columns index to database columns
+        $columns = ['id', 'featured_image', 'title', 'category_name', 'expiration_date', 'actions'];
+        $orderColumnName = $columns[$orderColumn];
+    
+        // Prepare query
+        $query = $db->table('posts')
+                    ->select('posts.id, posts.title, posts.expiration_date, categories.name as category_name, posts.featured_image')
+                    ->join('categories', 'posts.category_id = categories.id', 'left')
+                    ->where('posts.author_id', $this->id) ; // Filter by author_id
+    
+        // Search functionality (if applicable)
+        if (!empty($search)) {
+            $query->groupStart()  // Start grouping for OR conditions
+            ->like('posts.title', $search)
+            ->orLike('categories.name', $search)
+            ->groupEnd();  // End grouping
+        }
+    
+        // Adding order by condition
+        if ($orderColumnName == 'category_name') {
+            $query->orderBy("categories.name", $orderDirection);
+        } else if ($orderColumnName == 'title' || $orderColumnName == 'expiration_date') {
+            $query->orderBy("posts." . $orderColumnName, $orderDirection);
+        }
+    
+        // Execute the query with limit and offset
+        $data = $query->limit($length, $start)->get()->getResult();
+    
+        // Count filtered records and total records
+        $filteredCount = $query->countAllResults(false);  // Count results after filtering but without the limit
+        $totalCount = $db->table('posts')->where('author_id', $this->id)->countAllResults();  // Total results without any filtering
+    
+        // Prepare data for DataTables
+        $result = [
+            'draw' => intval($draw),
+            'recordsTotal' => $totalCount,
+            'recordsFiltered' => $filteredCount,
+            'data' => []
         ];
-        $table = "posts";
-        $primaryKey = "id";
-        $start = $this->request->getGet('start') ? intval($this->request->getGet('start')) : 0;
-
-        $columns = [
-            ["db" => "id", "dt" => 0, 'formatter' => function ($d, $row) use ($start) {
-                static $counter = 0;  // Initialize counter only once per request
-                return $start + (++$counter);  // Increment counter starting from the current page's start index
-            }],
-            ["db" => "id", "dt" => 1, "formatter" => function ($d, $row) {
-                $post = new Post();
-                $image = $post->asObject()->find($row["id"])->featured_image;
-                return "<img src='/images/posts/thumb_$image' class='img-thumbnail' style='max-width: 70px'>";
-            }],
-            ["db" => "title", "dt" => 2],
-            ["db" => "id", "dt" => 3, "formatter" => function ($d, $row) {
-                $post = new Post();
-                $category_id = $post->asObject()->find($row["id"])->category_id;
-                $category = new Category();
-                $category_name = $category->asObject()->find($category_id)->name;
-                return $category_name;
-            }],
-            ["db" => "id", "dt" => 4, "formatter" => function ($d, $row) {
-                $post = new Post();
-                $postDetails = $post->asObject()->find($row["id"]);
-                $expirationDate = $postDetails->expiration_date;
-                $status = strtotime($expirationDate) > time() ? 'Active' : 'Expired';
-                $style = $status === 'Expired' ? 'style="color: red;"' : 'style="color: green;"';
-                return "<span $style>" . $expirationDate . ' (' . $status . ')</span>';
-            }],
-            ["db" => "id", "dt" => 5, "formatter" => function ($d, $row) {
-                $editUrl = route_to("edit-post", $row["id"]); // Assuming you have a named route for editing
-                return "<div class='btn-group'>
-                <a href='" . $editUrl . "' class='btn btn-info btn-sm' style='min-width:80%;'>
-                <i class='icon-copy dw dw-edit2'></i>
-            </a>
-            <a href='javascript:void(0);' class='btn btn-danger btn-sm deletePostBtn' data-id='" . $row["id"] . "' style='min-width:80%;'>
-                <i class='icon-copy dw dw-delete-3'></i>
-                </div>";
-            }],
-        ];
-        $where = "author_id = " . $this->id;
-
-        return json_encode(
-            SSP::complex($_GET, $dbDetails, $table, $primaryKey, $columns, $where)
-        );
+    
+        $counter = $start + 1; // Start counter from 1 on each page
+        foreach ($data as $post) {
+            $expirationDate = $post->expiration_date;
+            $status = strtotime($expirationDate) > time() ? 'Active' : 'Expired';
+            $color = $status === 'Expired' ? 'red' : 'green';
+            $formattedDate = "<span style='color: {$color};'>{$expirationDate} ({$status})</span>";
+    
+            $result['data'][] = [
+                $counter++, // Increment the counter for each row
+                "<img src='/images/posts/thumb_{$post->featured_image}' class='img-thumbnail' style='max-width: 70px'>",
+                $post->title,
+                $post->category_name,
+                $formattedDate,
+                $this->getPostActionButtons($post->id)
+            ];
+        }
+    
+        return $this->response->setJSON($result);
     }
+    
+    private function getPostActionButtons($postId) {
+        $editUrl = route_to("edit-post", $postId); // Assuming you have a named route for editing
+        return "<div class='btn-group'>
+            <a href='" . $editUrl . "' class='btn btn-info btn-sm' style='min-width:80%;'>
+                <i class='icon-copy dw dw-edit2'></i> Edit
+            </a>
+            <a href='javascript:void(0);' class='btn btn-danger btn-sm deletePostBtn' data-id='" . $postId . "' style='min-width:80%;'>
+                <i class='icon-copy dw dw-delete-3'></i> Delete
+            </a>
+        </div>";
+    }
+    
+    
 
     public function editPost($id)
     {

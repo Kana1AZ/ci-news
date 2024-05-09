@@ -83,18 +83,18 @@ var posts_DT = $('#posts-table').DataTable({
         infoFiltered: ""
     },
     columnDefs: [{
-        targets: [0],
+        targets: [0,1,5],
         searchable: false,
         orderable: false,
-        width: "5%",
-        className: "dt-body-center"
+      //  width: "5%",
+        //className: "dt-body-center"
     }, {
-        targets: '_all',
+        targets: [2,3,4],
         orderable: true,
         searchable: true
     }],
     order: [
-        [1, 'asc']
+        [4, 'asc']
     ],
 
     drawCallback: function(settings) {

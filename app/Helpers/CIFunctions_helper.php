@@ -55,7 +55,7 @@ if(!function_exists('current_route_name')){
  if(!function_exists('get_categories')){
     function get_categories(){
         $category = new Category();
-        return $category->asObject()->orderBy('ordering', 'asc')->findAll();
+        return $category->asObject()->findAll();
     }
  }
 

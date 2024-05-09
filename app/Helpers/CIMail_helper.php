@@ -6,9 +6,9 @@ use PHPMailer\PHPMailer\Exception;
 
 if( !function_exists('sendEmail')){
     function sendEmail($mailConfig){
-        require 'PHPMailer/src/Exception.php';
-        require 'PHPMailer/src/PHPMailer.php';
-        require 'PHPMailer/src/SMTP.php';  
+        require_once 'PHPMailer/src/Exception.php';
+        require_once 'PHPMailer/src/PHPMailer.php';
+        require_once 'PHPMailer/src/SMTP.php';  
         
         $mail = new PHPMailer(true);
         $mail->SMTPDebug = 0;

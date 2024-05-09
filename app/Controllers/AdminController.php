@@ -96,7 +96,7 @@ class AdminController extends BaseController
             $file = $request->getFile("blog_logo");
             $setting_data = $settings->asObject()->first();
             $old_blog_logo = $setting_data->blog_logo;
-            $new_filename = "CInews_logo" . $file->getRandomName();
+            $new_filename = "logo_" . $file->getRandomName();
 
             if ($file->move($path, $new_filename)) {
                 if (
@@ -113,7 +113,7 @@ class AdminController extends BaseController
                     return $this->response->setJSON([
                         "status" => 1,
                         "token" => csrf_hash(),
-                        "msg" => "Blog logo updated successfully",
+                        "msg" => "Logo updated successfully",
                     ]);
                 } else {
                     return $this->response->setJSON([
@@ -142,7 +142,7 @@ class AdminController extends BaseController
             $file = $request->getFile("blog_favicon");
             $setting_data = $settings->asObject()->first();
             $old_blog_favicon = $setting_data->blog_favicon;
-            $new_filename = "CInews_favicon" . $file->getRandomName();
+            $new_filename = "favicon_" . $file->getRandomName();
 
             if ($file->move($path, $new_filename)) {
                 if (
@@ -159,7 +159,7 @@ class AdminController extends BaseController
                     return $this->response->setJSON([
                         "status" => 1,
                         "token" => csrf_hash(),
-                        "msg" => "Blog favicon updated successfully",
+                        "msg" => "Favicon updated successfully",
                     ]);
                 } else {
                     return $this->response->setJSON([
@@ -189,7 +189,7 @@ class AdminController extends BaseController
     
             return [
                 'id' => $user->id,
-                'name' => $user->name,
+                'username' => $user->username,
                 'email' => $user->email,
                 'role' => $user->role,
                 'actions' => "<button class='btn btn-info btn-sm editUser' data-id='$user->id''>Edit</button>
@@ -219,31 +219,46 @@ class AdminController extends BaseController
     
         // Start transaction to ensure data integrity
         $this->db->transStart();
-            // Delete user's posts and associated images
-            $posts = $postModel->where('author_id', $userId)->findAll();
-            foreach ($posts as $post) {
-                $path = "images/posts/";
-                $imageFile = $path . $post['featured_image'];
-                if (!empty($post['featured_image']) && file_exists($imageFile)) {
-                    @unlink($imageFile);
-                    @unlink($path . "thumb_" . $post['featured_image']);
-                    @unlink($path . "resized_" . $post['featured_image']);
-                }
-                $postModel->delete($post['id']);
+    
+        // Delete user's posts and associated images
+        $posts = $postModel->where('author_id', $userId)->findAll();
+        foreach ($posts as $post) {
+            $path = "images/posts/";
+            $imageFile = $path . $post['featured_image'];
+            if (!empty($post['featured_image']) && file_exists($imageFile)) {
+                @unlink($imageFile);
+                @unlink($path . "thumb_" . $post['featured_image']);
+                @unlink($path . "resized_" . $post['featured_image']);
             }
+            $postModel->delete($post['id']);
+        }
     
-            // Delete categories created by the user
-            $categoryModel->where('author_id', $userId)->delete();
+        // Delete categories created by the user
+        $categoryModel->where('author_id', $userId)->delete();
     
-            // Delete user's profile picture
-            $profileImagePath = "images/users/";
-            if (!empty($user['picture']) && file_exists($profileImagePath . $user['picture'])) {
-                @unlink($profileImagePath . $user['picture']);
-            }
+        // Delete user's profile picture
+        $profileImagePath = "images/users/";
+        if (!empty($user['picture']) && file_exists($profileImagePath . $user['picture'])) {
+            @unlink($profileImagePath . $user['picture']);
+        }
     
-            // Finally, delete the user
-            $userModel->delete($userId);
-    }    
+        // Finally, delete the user
+        $userModel->delete($userId);
+    
+        // Complete the transaction
+        $this->db->transComplete();
+    
+        if ($this->db->transStatus() === false) {
+            // Transaction failed: Roll back and return error
+            $this->db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to delete user.']);
+        } else {
+            // Transaction succeeded: Commit and return success
+            $this->db->transCommit();
+            return $this->response->setJSON(['status' => 'success', 'message' => 'User deleted successfully.']);
+        }
+    }
+      
     
     public function getUserDetails() {
         $userId = $this->request->getGet('id');
@@ -255,7 +270,7 @@ class AdminController extends BaseController
     public function updateUserDetails() {
         $userId = $this->request->getPost('user_id');
         $data = [
-            'name' => $this->request->getPost('name'),
+            'username' => $this->request->getPost('username'),
             'email' => $this->request->getPost('email'),
             'role' => $this->request->getPost('role'),
         ];

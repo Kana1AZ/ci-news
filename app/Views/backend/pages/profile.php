@@ -77,9 +77,9 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="">Bio</label>
+                                        <label for="">Notes</label>
                                         <textarea name="bio" id="" cols="30" rows="10" class="form-control"
-                                            placeholder="Bio...." value="<?= get_user()-> bio ?>"></textarea>
+                                            placeholder="Notes...."><?= get_user()->bio ?></textarea>
                                         <span class="text-danger error-text bio_error"></span>
                                     </div>
                                     <div class="form-group">

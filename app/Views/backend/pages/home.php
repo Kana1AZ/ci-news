@@ -1,7 +1,7 @@
 <?= $this->extend('backend/layout/pages-layout') ?>
 <?= $this->section('content') ?>
 
-<div class="xs-pd-20-10 pd-ltr-20">
+<div class="xs-pd-20-10 pd-ltr-10">
     <div class="title pb-20">
         <h2 class="h3 mb-0">Guarantees Overview</h2>
     </div>
@@ -107,6 +107,12 @@
     background-color: #ff1f00;
     color: white;
 }
+
+    .footer {
+    max-width: 100%; /* Adjust this value based on your layout's needs */
+    overflow: hidden; /* This prevents any content from forcing the footer to expand horizontally */
+}
+
 </style>
 
 <script>
@@ -121,7 +127,7 @@ var x<?= $guarantee->id ?> = setInterval(function() {
     if (distance < 0) {
         clearInterval(x<?= $guarantee->id ?>);
         timerElement.innerHTML = "EXPIRED";
-        timerElement.closest('tr').classList.add("expired");
+        timerElement.closest('tr').classList.add("expired"); // Add expired class if needed
     } else {
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

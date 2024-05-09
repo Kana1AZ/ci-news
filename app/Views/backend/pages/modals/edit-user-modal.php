@@ -13,8 +13,8 @@
                 <form id="editUserForm">
                     <input type="hidden" name="user_id" id="editUserId">
                     <div class="form-group">
-                        <label for="editName">Name</label>
-                        <input type="text" class="form-control" id="editName" name="name" required>
+                        <label for="editName">Username</label>
+                        <input type="text" class="form-control" id="editName" name="username" required>
                     </div>
                     <div class="form-group">
                         <label for="editEmail">Email</label>

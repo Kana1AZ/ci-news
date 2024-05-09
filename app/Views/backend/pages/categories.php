@@ -88,8 +88,6 @@ $(document).on('click', '#add-category-btn', function(e) {
 });
 
 $(document).ready(function() {
-    console.log("Document ready!");
-    // Initialize the DataTable
     var categories_DT = $('#categories-table').DataTable({
         scrollCollapse: true,
         responsive: true,
@@ -99,23 +97,25 @@ $(document).ready(function() {
         ajax: "<?= route_to('get-categories') ?>",
         dom: "Brtip",
         language: {
-            info: "",
-            infoFiltered: ""
+            info: "Showing _START_ to _END_ of _TOTAL_ categories",
+            paginate: {
+                next: 'Next',
+                previous: 'Previous'
+            }
         },
         columnDefs: [{
-                targets: [0], // Assuming column 0 is the index column
+                targets: [0,3], // Assuming column 0 is the index column
                 searchable: false,
                 orderable: false,
-                className: "dt-body-center"
             },
             {
-                targets: '_all',
+                targets: '[1,2]',
                 orderable: true,
                 searchable: true
             }
         ],
         order: [
-            [2, 'asc']
+            [2, 'desc']
         ]
     });
 

@@ -79,66 +79,86 @@ class AuthController extends BaseController
         return view('backend/pages/auth/login', $data);
     }
 
-    public function loginHandler(){
+    public function loginHandler() {
         $fieldType = filter_var($this->request->getVar('login_id'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-       
-        if ($fieldType == 'email'){
-            $isValid = $this->validate([
-                'login_id' => [
-                    'rules' =>'required|valid_email|is_not_unique[users.email]',
-                    'errors' => [
-                        'required' => 'Email is required',
-                        'valid_email' => 'Please, double-check the email address.',
-                        'is_not_unique' => 'Email address is not registered.'
-                    ]
-                ],
-                'password' => [
-                    'rules' =>'required|min_length[5]|max_length[45]',
-                    'errors' => [
-                        'required' => 'Password is required',
-                        'min_length' => 'Password must be at least 5 characters long.',
-                        'max_length' => 'Password can not be more than 45 characters long.'
-                    ]
-                ]
-            ]);
-        }else{
-            $isValid = $this->validate([
-                'login_id' => [
-                    'rules' =>'required|is_not_unique[users.username]',
-                    'errors' => [
-                        'required' => 'Username is required',
-                        'is_not_unique' => 'Username is not registered'
-                    ]
-                ],
-                'password' => [
-                    'rules' =>'required|min_length[5]|max_length[45]',
-                    'errors' => [
-                        'required' => 'Password is required',
-                        'min_length' => 'Password must be at least 5 characters long.',
-                        'max_length' => 'Password can not be more than 45 characters long.'
-                    ]
-                ]
-            ]);
-        }
-
-        if (!$isValid){
-            return view('backend\pages\auth\login',[
-                'pageTitle' => 'Login',
-                'validation' => $this->validator
-            ]);
-        }else{
+        
+        $validationRules = [
+            'login_id' => 'required|' . ($fieldType === 'email' ? 'valid_email|is_not_unique[users.email]' : 'is_not_unique[users.username]'),
+            'password' => 'required|min_length[5]|max_length[45]'
+        ];
+    
+        if ($this->validate($validationRules)) {
             $user = new User();
             $userInfo = $user->where($fieldType, $this->request->getVar('login_id'))->first();
             $check_password = Hash::check($this->request->getVar('password'), $userInfo['password']);
-
-            if (!$check_password){ 
-                return redirect()->route('login.form')->with('fail', 'Wrong password')->withInput();
-            }else{
-                CIAUth::setClAuth($userInfo);
+    
+            if ($check_password) { 
+                CIAuth::setClAuth($userInfo);
+        
+                $this->triggerPostExpiryCheck();  // Asynchronously handle notifications
+    
                 return redirect()->route('home');
+            } else {
+                return redirect()->route('login.form')->with('fail', 'Wrong password')->withInput();
+            }
+        } else {
+            return view('backend/pages/auth/login', [
+                'pageTitle' => 'Login',
+                'validation' => $this->validator
+            ]);
+        }
+    }
+    
+    private function triggerPostExpiryCheck() {
+        $postModel = new \App\Models\Post();
+        $expiringPosts = $postModel->getExpiringPosts(date('Y-m-d'));
+    
+        foreach ($expiringPosts as $post) {
+            if (!$post['notification_sent']) {
+                $this->sendExpiryNotifications($post);
             }
         }
     }
+    
+    public function sendExpiryNotifications($post) {
+        $userModel = new \App\Models\User();
+        $userInfo = $userModel->find($post['author_id']);
+    
+        if ($userInfo && !$post['notification_sent']) {
+            $mail_data = [
+                'postTitle' => $post['title'],
+                'expiryDate' => $post['expiration_date'],
+                'user' => $userInfo  // Ensure this is an object if accessed like one
+            ];
+    
+            if ($this->prepareExpiryNotificationEmail($mail_data)) {
+                $this->markNotificationSent($post['id']);
+            }
+        }
+    }
+    
+    public function prepareExpiryNotificationEmail($mail_data) {
+        $view = \Config\Services::renderer();
+        $mail_body = $view->setVar('mail_data', $mail_data)->render('email-templates/expire-warning-email-template');
+        
+        $mail_config = [
+            'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
+            'mail_from_name' => env('EMAIL_FROM_NAME'),
+            'mail_recipient_email' => $mail_data['user']['email'],  // Access as array if $userInfo is an array
+            'mail_recipient_name' => $mail_data['user']['name'],
+            'mail_subject' => 'Your Guarantee is Expiring Soon',
+            'mail_body' => $mail_body
+        ];
+    
+        return sendEmail($mail_config);
+    }
+    
+    public function markNotificationSent($postId) {
+        $postModel = new \App\Models\Post();
+        $postModel->update($postId, ['notification_sent' => true]);
+    }
+    
+    
 
     public function forgotForm(){
         $data = array(
