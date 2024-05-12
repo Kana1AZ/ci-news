@@ -22,14 +22,10 @@ class CIFilter implements FilterInterface
             }
         }
 
-        // Additional check for admin role if required
         if (in_array('admin', $arguments) && (!CIAuth::check() || CIAuth::user()->role !== 'admin')) {
             return redirect()->route('login.form')->with('fail', 'You must be an admin to access this page.');
         }
     }
 
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        //
-    }
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null){}
 }

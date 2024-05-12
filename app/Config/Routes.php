@@ -9,7 +9,6 @@ $routes->get('/', 'AuthController::loginForm');
 
   
     $routes->group('', ['filter' => 'cifilter:auth'], static function($routes){
-       // $routes->view('example-page', 'example-page');
         $routes->get('home', 'UserController::index', ['as'=>'home']);
         $routes->get('logout', 'UserController::logoutHandler', ['as'=>'logout']);
         $routes->get('profile', 'UserController::profile', ['as'=>'profile']);
@@ -37,7 +36,6 @@ $routes->get('/', 'AuthController::loginForm');
         });
     });
     $routes->group('', ['filter' => 'cifilter:guest'], static function($routes){
-       // $routes->view('example-auth', 'example-auth');
        $routes->get('login', 'AuthController::loginForm', ['as'=>'login.form']);
        $routes->post('login', 'AuthController::loginHandler', ['as'=>'login.handler']);
        $routes->get('register', 'AuthController::registerForm', ['as'=>'register.form']);
@@ -58,4 +56,3 @@ $routes->get('/', 'AuthController::loginForm');
         $routes->post('update-general-settings', 'AdminController::updateGeneralSettings', ['as'=>'update-general-settings']);
         $routes->post('update-blog-logo', 'AdminController::updateBlogLogo', ['as'=>'update-blog-logo']);
     });
-        

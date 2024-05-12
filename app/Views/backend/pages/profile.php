@@ -52,7 +52,6 @@
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <!-- Timeline Tab start -->
                         <div class="tab-pane fade show active" id="personal_details" role="tabpanel">
                             <div class="pd-20">
                                 <form action="<?= route_to('update-personal-details'); ?>" method="POST"
@@ -88,8 +87,6 @@
                                 </form>
                             </div>
                         </div>
-                        <!-- Timeline Tab End -->
-                        <!-- Tasks Tab start -->
                         <div class="tab-pane fade" id="change_password" role="tabpanel">
                             <div class="pd-20 profile-task-wrap">
                                 <form action="<?= route_to('change-password')?>" method="POST"
@@ -128,8 +125,6 @@
                                 </form>
                             </div>
                         </div>
-                        <!-- Tasks Tab End -->
-
                     </div>
                 </div>
             </div>
@@ -193,8 +188,7 @@ $('#user_profile_file').ijaboCropTool({
 
 $('#change_password_form').on('submit', function(e) {
     e.preventDefault();
-    //CSRF Hash
-    var csrfName = $('.ci_csrf_data').attr('name'); //CSRF Token name
+    var csrfName = $('.ci_csrf_data').attr('name');
     var csrfHash = $('.ci_csrf_data').val();
     var form = this;
     var formdata = new FormData(form);
@@ -213,7 +207,6 @@ $('#change_password_form').on('submit', function(e) {
             $(form).find('span.error-text').text('');
         },
         success: function(response) {
-            //Update CSRF hash
             $('.ci_csrf_data').val(response.token);
 
             if ($.isEmptyObject(response.error)) {

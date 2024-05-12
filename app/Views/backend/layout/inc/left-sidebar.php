@@ -31,11 +31,11 @@
                     <ul class="submenu">
                         <li><a href="<?= route_to('all-posts')?>"
                                 class="<?= current_route_name() == 'all-posts' ? 'active' : '' ?>">
-                                </i> All</a> <!-- Icon added here for submenu -->
+                                </i> All</a>
                         </li>
                         <li><a href="<?= route_to('new-post')?>"
                                 class="<?= current_route_name() == 'new-post' ? 'active' : '' ?>">
-                                </i> Add new</a> <!-- Icon added here for submenu -->
+                                </i> Add new</a>
                         </li>
                     </ul>
                 </li>

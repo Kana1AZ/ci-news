@@ -3,10 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\User;
 use App\Models\Setting;
-
-
 
 class AdminController extends BaseController
 {
@@ -184,7 +181,6 @@ class AdminController extends BaseController
         $users = $userModel->findAll();
     
         $data = array_map(function ($user) {
-            // Check if $user is an array and convert to object if necessary
             $user = is_array($user) ? (object)$user : $user;
     
             return [
@@ -217,10 +213,8 @@ class AdminController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'User not found']);
         }
     
-        // Start transaction to ensure data integrity
         $this->db->transStart();
     
-        // Delete user's posts and associated images
         $posts = $postModel->where('author_id', $userId)->findAll();
         foreach ($posts as $post) {
             $path = "images/posts/";
@@ -233,27 +227,21 @@ class AdminController extends BaseController
             $postModel->delete($post['id']);
         }
     
-        // Delete categories created by the user
         $categoryModel->where('author_id', $userId)->delete();
-    
-        // Delete user's profile picture
+
         $profileImagePath = "images/users/";
         if (!empty($user['picture']) && file_exists($profileImagePath . $user['picture'])) {
             @unlink($profileImagePath . $user['picture']);
         }
     
-        // Finally, delete the user
         $userModel->delete($userId);
     
-        // Complete the transaction
         $this->db->transComplete();
     
         if ($this->db->transStatus() === false) {
-            // Transaction failed: Roll back and return error
             $this->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to delete user.']);
         } else {
-            // Transaction succeeded: Commit and return success
             $this->db->transCommit();
             return $this->response->setJSON(['status' => 'success', 'message' => 'User deleted successfully.']);
         }
@@ -278,5 +266,4 @@ class AdminController extends BaseController
         $userModel->update($userId, $data);
         return $this->response->setJSON(['status' => 'success', 'message' => 'User updated successfully']);
     }
-
 }

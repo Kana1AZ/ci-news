@@ -2,7 +2,6 @@
 
 use CodeIgniter\CLI\CLI;
 
-// The main Exception
 CLI::write('[' . get_class($exception) . ']', 'light_gray', 'red');
 CLI::write($message);
 CLI::write('at ' . CLI::color(clean_path($exception->getFile()) . ':' . $exception->getLine(), 'green'));
@@ -20,7 +19,6 @@ while ($prevException = $last->getPrevious()) {
     CLI::newLine();
 }
 
-// The backtrace
 if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) {
     $backtraces = $last->getTrace();
 
@@ -29,8 +27,8 @@ if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) {
     }
 
     foreach ($backtraces as $i => $error) {
-        $padFile  = '    '; // 4 spaces
-        $padClass = '       '; // 7 spaces
+        $padFile  = '    ';
+        $padClass = '       ';
         $c        = str_pad($i + 1, 3, ' ', STR_PAD_LEFT);
 
         if (isset($error['file'])) {
@@ -59,8 +57,7 @@ if (defined('SHOW_DEBUG_BACKTRACE') && SHOW_DEBUG_BACKTRACE) {
                     return count($value) ? '[...]' : '[]';
 
                 case $value === null:
-                    return 'null'; // return the lowercased version
-
+                    return 'null';
                 default:
                     return var_export($value, true);
             }

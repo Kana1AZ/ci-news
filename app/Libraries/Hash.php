@@ -13,5 +13,4 @@ class Hash{
             return false;
         }
     }
-
 }

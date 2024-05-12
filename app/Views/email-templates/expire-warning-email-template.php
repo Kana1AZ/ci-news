@@ -1,6 +1,5 @@
 <?php
-// Assuming that $mail_data array is passed to this template with necessary details
-$userName = esc($mail_data['user']['name']);  // Correctly accessing the array and escaping for security
+$userName = esc($mail_data['user']['name']);
 $postTitle = esc($mail_data['postTitle']);
 $expiryDate = esc($mail_data['expiryDate']);
 ?>

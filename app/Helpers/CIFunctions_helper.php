@@ -47,11 +47,6 @@ if(!function_exists('current_route_name')){
     }
 }
 
-
-/**
- * Frontend Functions
- */
-
  if(!function_exists('get_categories')){
     function get_categories(){
         $category = new Category();

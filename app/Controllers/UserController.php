@@ -30,31 +30,24 @@ class UserController extends BaseController
 
     public function index()
     {
-        $postModel = new \App\Models\Post(); // Assuming you have a Post model
+        $postModel = new \App\Models\Post();
         $userModel = new \App\Models\User();
         $user = $userModel->find($this->id);
-
-        // Check if user data is an array and convert to object if necessary
         $user = is_array($user) ? (object) $user : $user;
 
-        // Count total guarantees posted by the author
         $totalGuarantees = $postModel->where('author_id', $this->id)->countAllResults();
-
-        // Count active guarantees (expiration date in the future)
         $activeGuarantees = $postModel->where('author_id', $this->id)
                                        ->where('expiration_date >', date('Y-m-d'))
                                        ->countAllResults();
 
-        // Count expired guarantees (expiration date in the past)
         $expiredGuarantees = $postModel->where('author_id', $this->id)
                                         ->where('expiration_date <=', date('Y-m-d'))
                                         ->countAllResults();
 
-        // Get the 5 guarantees that are soon to expire
         $soonToExpireGuarantees = $postModel->asObject()->where('author_id', $this->id)
-                                   ->where('expiration_date >', date('Y-m-d')) // make sure to adjust this as per your requirements
+                                   ->where('expiration_date >', date('Y-m-d'))
                                    ->orderBy('expiration_date', 'asc')
-                                   ->findAll(5); // Limit to 5 results
+                                   ->findAll(5);
 
         $data = [
             "pageTitle" => "Dashboard",
@@ -65,7 +58,6 @@ class UserController extends BaseController
         ];
         return view("backend/pages/home", $data);
     }
-
 
     public function logoutHandler()
     {
@@ -153,7 +145,6 @@ class UserController extends BaseController
         $old_picture = $user_info->picture;
         $new_filename = "UIMG_" . $this->id . $file->getRandomName();
 
-        //image manipulation
         $upload_image = \Config\Services::image()
             ->withFile($file)
             ->resize(450, 450, true, "height")

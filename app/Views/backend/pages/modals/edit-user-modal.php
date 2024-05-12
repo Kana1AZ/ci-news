@@ -27,7 +27,6 @@
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <!-- Add more fields as needed -->
                 </form>
             </div>
             <div class="modal-footer">

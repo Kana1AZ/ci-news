@@ -69,7 +69,7 @@
 <script src="/backend/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
 <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
 <script>
-//retrieve posts
+
 var posts_DT = $('#posts-table').DataTable({
     scrollCollapse: true,
     responsive: true,
@@ -83,13 +83,11 @@ var posts_DT = $('#posts-table').DataTable({
         infoFiltered: ""
     },
     columnDefs: [{
-        targets: [0,1,5],
+        targets: [0, 1, 5],
         searchable: false,
         orderable: false,
-      //  width: "5%",
-        //className: "dt-body-center"
     }, {
-        targets: [2,3,4],
+        targets: [2, 3, 4],
         orderable: true,
         searchable: true
     }],

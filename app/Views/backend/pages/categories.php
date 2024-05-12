@@ -74,7 +74,6 @@
 <script src="/backend/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
 <script src="/extra-assets/jquery-ui-1.13.2/jquery-ui.min.js"></script>
 <script>
-
 $(document).on('click', '#add-category-btn', function(e) {
     e.preventDefault();
     var modal = $('body').find('div#category-modal');
@@ -104,7 +103,7 @@ $(document).ready(function() {
             }
         },
         columnDefs: [{
-                targets: [0,3], // Assuming column 0 is the index column
+                targets: [0, 3],
                 searchable: false,
                 orderable: false,
             },
@@ -119,7 +118,6 @@ $(document).ready(function() {
         ]
     });
 
-    // Event bindings for edit and delete buttons
     $(document).on('click', '.editCategoryBtn', function(e) {
         e.preventDefault();
         var category_id = $(this).data('id');
@@ -189,7 +187,6 @@ $(document).ready(function() {
                 } else {
                     toastr.error(response.msg);
                 }
-                // Update CSRF token
                 if (response.csrfHash) {
                     $('.ci_csrf_data').val(response.csrfHash);
                 }
@@ -204,7 +201,6 @@ $(document).ready(function() {
 
     $('#add_category_form').on('submit', function(e) {
         e.preventDefault();
-        //CSRF HASH
         var csrfName = $(".ci_csrf_data").attr('name');
         var csrfHash = $(".ci_csrf_data").val();
         var form = this;
@@ -225,7 +221,6 @@ $(document).ready(function() {
                 $(form).find('span.error-text').text('');
             },
             success: function(response) {
-                //update CSRF HASH
                 $('.ci_csrf_data').val(response.token);
 
                 if ($.isEmptyObject(response.error)) {
@@ -234,7 +229,7 @@ $(document).ready(function() {
                         modal.modal('hide');
                         toastr.success(response.msg);
                         categories_DT.ajax.reload(null,
-                        false); //update table withouut refreshing
+                            false);
                     } else {
                         toastr.error(response.msg);
                     }
@@ -248,7 +243,5 @@ $(document).ready(function() {
     });
 });
 
-
-//update category
 </script>
 <?= $this->endSection()?>

@@ -16,6 +16,4 @@ class Setting extends Model
         'blog_logo',
         'blog_favicon',
     ];
-
-
 }

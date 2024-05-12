@@ -69,7 +69,6 @@ class AuthController extends BaseController
         }
     }
 
-
     public function loginForm()
     {
         $data = [
@@ -95,7 +94,7 @@ class AuthController extends BaseController
             if ($check_password) { 
                 CIAuth::setClAuth($userInfo);
         
-                $this->triggerPostExpiryCheck();  // Asynchronously handle notifications
+                $this->triggerPostExpiryCheck();
     
                 return redirect()->route('home');
             } else {
@@ -128,7 +127,7 @@ class AuthController extends BaseController
             $mail_data = [
                 'postTitle' => $post['title'],
                 'expiryDate' => $post['expiration_date'],
-                'user' => $userInfo  // Ensure this is an object if accessed like one
+                'user' => $userInfo
             ];
     
             if ($this->prepareExpiryNotificationEmail($mail_data)) {
@@ -144,7 +143,7 @@ class AuthController extends BaseController
         $mail_config = [
             'mail_from_email' => env('EMAIL_FROM_ADDRESS'),
             'mail_from_name' => env('EMAIL_FROM_NAME'),
-            'mail_recipient_email' => $mail_data['user']['email'],  // Access as array if $userInfo is an array
+            'mail_recipient_email' => $mail_data['user']['email'],
             'mail_recipient_name' => $mail_data['user']['name'],
             'mail_subject' => 'Your Guarantee is Expiring Soon',
             'mail_body' => $mail_body
@@ -158,8 +157,6 @@ class AuthController extends BaseController
         $postModel->update($postId, ['notification_sent' => true]);
     }
     
-    
-
     public function forgotForm(){
         $data = array(
             'pageTitle' => 'Forgot Password',
@@ -186,21 +183,15 @@ class AuthController extends BaseController
                 'validation' => $this->validator,
             ]);
         }else{
-            //Get user (admin) details
             $user = new User();
             $user_info = $user->asObject()->where('email', $this->request->getVar('email'))->first();
 
-            //Generate token
-
             $token = bin2hex(openssl_random_pseudo_bytes(65));
-
-            //Get reset password token
 
             $password_reset_token = new PasswordResetToken();
             $isOldTokenExist = $password_reset_token->asObject()->where('email', $user_info->email)->first();
 
             if($isOldTokenExist){
-                //Update password reset token
                 $password_reset_token->where('email', $user_info->email)->set(['token'=>$token, 'created_at'=>Carbon::now()])->update();
             }else{
                 $password_reset_token->insert([
@@ -229,7 +220,6 @@ class AuthController extends BaseController
                 'mail_body' => $mail_body
             );
 
-            //Send email
             if( sendEmail($mail_config)){
                 return redirect()->route('forgot.form')->with('success', 'Password reset link has been sent to your e-mail address');
             }else{
@@ -248,7 +238,6 @@ class AuthController extends BaseController
             $diffMins = Carbon::createFromFormat('Y-m-d H:i:s', $check_token->created_at)->diffInMinutes(Carbon::now());
        
             if($diffMins > 15){
-                //if token expired (older than 15 minutes)
                 return redirect()->route('forgot.form')->with('fail', 'Token expired. Request new password reset link');
             }else{
                 return view('backend/pages/auth/reset',[
@@ -287,11 +276,9 @@ class AuthController extends BaseController
                 'token' => $token,
             ]);
         }else{
-           //Get token details
            $passwordResetPassword = new PasswordResetToken();
            $get_token = $passwordResetPassword->asObject()->where('token', $token)->first();
 
-           //Get user (admin) details
            $user = new User();
            $user_info = $user->asObject()->where('email', $get_token->email)->first();
 
@@ -299,12 +286,9 @@ class AuthController extends BaseController
            if(!$get_token){
                 return redirect()->back()->with('fail', 'Invalid token!')->withInput();
             }else{
-                //Update user (admin) password in DB
                 $user->where('email', $user_info->email)
                     ->set(['password'=>Hash::make($this->request->getVar('new_password'))])
                     ->update();
-
-                //Send notification to user email address
 
                 $mail_data = array(
                     'user' =>$user_info,
@@ -325,9 +309,6 @@ class AuthController extends BaseController
 
                 if( sendEmail($mailConfig)){
                     $passwordResetPassword->where('email', $user_info->email)->delete();
-                    
-                    //Redirect and display message on login page
-
                     return redirect()->route('login.form')->with('success', 'Your password has been updated. Use your new password to login');
                 }else{
                     return redirect()->back()->with('fail', 'Something went wrong')->withInput();
@@ -335,11 +316,4 @@ class AuthController extends BaseController
             }
         }
     }
-
-
 }
-
-
-
-
-

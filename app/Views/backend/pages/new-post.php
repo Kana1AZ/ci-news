@@ -74,19 +74,6 @@
                         <span class="text-danger error-text expiration_date_error"></span>
                     </div>
                     <hr>
-                    <!-- <div class="form-group">
-                        <label for=""><b>Visibility</b></label>
-                        <div class="custom-control custom-radio mb-5">
-                            <input type="radio" name="visibility" id="customRadio1" class="custom-control-input"
-                                value="1" checked>
-                            <label class="custom-control-label" for="customRadio1">Public</label>
-                        </div>
-                        <div class="custom-control custom-radio mb-5">
-                            <input type="radio" name="visibility" id="customRadio2" class="custom-control-input"
-                                value="0">
-                            <label class="custom-control-label" for="customRadio2">Private</label>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>

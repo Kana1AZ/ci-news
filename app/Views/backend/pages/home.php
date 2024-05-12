@@ -60,7 +60,6 @@
         </div>
     </div>
 
-
     <div class="row">
         <div class="col-md-12 mb-4">
             <div class="card card-box">
@@ -108,11 +107,10 @@
     color: white;
 }
 
-    .footer {
-    max-width: 100%; /* Adjust this value based on your layout's needs */
-    overflow: hidden; /* This prevents any content from forcing the footer to expand horizontally */
+.footer {
+    max-width: 100%;
+    overflow: hidden;
 }
-
 </style>
 
 <script>
@@ -127,7 +125,7 @@ var x<?= $guarantee->id ?> = setInterval(function() {
     if (distance < 0) {
         clearInterval(x<?= $guarantee->id ?>);
         timerElement.innerHTML = "EXPIRED";
-        timerElement.closest('tr').classList.add("expired"); // Add expired class if needed
+        timerElement.closest('tr').classList.add("expired");
     } else {
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -144,6 +142,4 @@ var x<?= $guarantee->id ?> = setInterval(function() {
 }, 1000);
 <?php endforeach; ?>
 </script>
-
-
 <?= $this->endSection()?>
